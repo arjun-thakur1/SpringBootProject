@@ -1,0 +1,8 @@
+
+I
+java:S1602",Remove useless curly braces around statement(¼¯±û8„Äâ¸.
+o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(úÖ©ğ
+v
+java:S2293"YReplace the type specification in this constructor call with the diamond operator ("<>").(†œ×À8„Äâ¸.
+L
+java:S1611"/Remove the parentheses around the "l" parameter(¼¯±û8„Äâ¸.

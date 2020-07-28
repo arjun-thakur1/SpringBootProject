@@ -1,0 +1,12 @@
+
+g
+java:S1128"KRemove this unused import 'Work1.Project1.Package.entity.DepartmentEntity'.(ãùs8Éİùù¸.
+N
+java:S1602",Remove useless curly braces around statement(Ó‘òŒûÿÿÿÿ8Éøù¸.
+o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(úÖ©ğ
+l
+java:S1128"ORemove this unused import 'Work1.Project1.Package.response.ResponseDepartment'.(ä¶øÖ8ôòüù¸.
+v
+java:S2293"YReplace the type specification in this constructor call with the diamond operator ("<>").(õšäŸ8Éøù¸.
+Q
+java:S1611"/Remove the parentheses around the "l" parameter(Ó‘òŒûÿÿÿÿ8Éøù¸.

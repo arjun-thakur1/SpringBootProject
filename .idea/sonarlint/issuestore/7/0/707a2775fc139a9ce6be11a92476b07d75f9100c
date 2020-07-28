@@ -1,0 +1,15 @@
+
+‡
+java:S1488!"eImmediately return this expression instead of assigning it to the temporary variable "responseError".(ÅûÒÔùÿÿÿÿ8ŸÒ‹õ¸.
+1
+java:S3626J"Remove this redundant jump.(ûÁİ…
+1
+java:S3626O"Remove this redundant jump.(ûÁİ…
+^
+java:S4488A"HReplace "@RequestMapping(method = RequestMethod.PUT)" with "@PutMapping"(šÅ¬²
+U	java:S106="9Replace this use of System.out or System.err by a logger.(ˆíé8İãÈ¯¹.
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(™§ÅÁüÿÿÿÿ
+c
+java:S44889"HReplace "@RequestMapping(method = RequestMethod.PUT)" with "@PutMapping"(°™ª©üÿÿÿÿ
+f
+java:S1128"IRemove this unused import 'Work1.Project1.Package.entity.EmployeeEntity'.(ÆŸ¢8±Œ€®¹.
