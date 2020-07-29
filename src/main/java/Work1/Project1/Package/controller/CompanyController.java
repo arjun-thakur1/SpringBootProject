@@ -1,8 +1,8 @@
 package Work1.Project1.Package.controller;
 
 import Work1.Project1.Package.entity.CompanyEntity;
-import Work1.Project1.Package.exception.NotFoundException;
-import Work1.Project1.Package.response.ResponseError;
+import Work1.Project1.Package.exception.CustomException;
+import Work1.Project1.Package.response.Response;
 import Work1.Project1.Package.request.RequestCompany;
 import Work1.Project1.Package.services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import static Work1.Project1.Package.constants.ApplicationConstants.*;
 
 @RestController
 @RequestMapping("/company")
@@ -23,24 +21,24 @@ public class CompanyController {
 
 
     @RequestMapping(value = "/all" , produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getAllCompaniesDetails() throws NotFoundException {
+    public Object getAllCompaniesDetails() throws CustomException {
         return   companyService.getAllDetails();
     }
 
     @GetMapping(value="/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getCompanyDetailsById(@PathVariable("id") Long companyId) throws NotFoundException {
+    public Object getCompanyDetailsById(@PathVariable("id") Long companyId) throws CustomException {
         return  companyService.getCompanyDetails(companyId);
     }
 
     @DeleteMapping("/{companyId}")
-    public ResponseError deleteCompany(@PathVariable("companyId") Long companyId) {
+    public Response deleteCompany(@PathVariable("companyId") Long companyId) throws CustomException {
         return companyService.deleteCompanyDetails(companyId);
     }
 
     @PutMapping("")
-     public ResponseError updateCompanyDetails(@RequestParam("companyId") long companyId,
-                                               @RequestParam("companyName") String companyName,
-                                               @RequestParam("ceoName") String ceoName) throws NotFoundException {   //CompanyEntity companyEntity ) {
+     public Response updateCompanyDetails(@RequestParam("companyId") long companyId,
+                                          @RequestParam("companyName") String companyName,
+                                          @RequestParam("ceoName") String ceoName) throws CustomException {   //CompanyEntity companyEntity ) {
         return companyService.updateDetails(new CompanyEntity(companyId,companyName,ceoName,true));
     }
 
@@ -52,7 +50,7 @@ public class CompanyController {
     }
 
     @GetMapping (value="/complete-details")
-    public Object getCompanyAllDepartmentDetails(@RequestParam("companyId") long companyId) throws NotFoundException {
+    public Object getCompanyAllDepartmentDetails(@RequestParam("companyId") long companyId) throws CustomException {
 
         return  companyService.getCompanyCompleteDetails(companyId);
     }

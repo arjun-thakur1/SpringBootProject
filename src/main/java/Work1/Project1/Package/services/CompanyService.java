@@ -5,11 +5,11 @@ import Work1.Project1.Package.converter.DepartmentEntityListToResponseDeptList;
 import Work1.Project1.Package.entity.CompanyEntity;
 import Work1.Project1.Package.entity.DepartmentEntity;
 import Work1.Project1.Package.entity.DepartmentPK;
-import Work1.Project1.Package.exception.NotFoundException;
+import Work1.Project1.Package.exception.CustomException;
 import Work1.Project1.Package.repository.DepartmentRepository;
 import Work1.Project1.Package.response.ResponseCompany;
 import Work1.Project1.Package.response.ResponseDepartment;
-import Work1.Project1.Package.response.ResponseError;
+import Work1.Project1.Package.response.Response;
 import Work1.Project1.Package.request.RequestCompany;
 import Work1.Project1.Package.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,56 +38,47 @@ public class CompanyService {
     @Autowired
     private DepartmentEntityListToResponseDeptList departmentEntityListToResponseDeptList;
 
-    public Object getAllDetails() throws NotFoundException{
+    public Object getAllDetails() throws CustomException {
        List<CompanyEntity>companyEntities= companyRepository.findAllByIsActive(true);
         List<ResponseCompany>responseCompanyList = companyEntityListToResponseCompanyList.convert(companyEntities);
-       if(responseCompanyList.isEmpty())
+        if(responseCompanyList.isEmpty())
            {
-               ResponseError responseError =new ResponseError(200 , "No content!!");
-             return responseError;
+               throw new CustomException(Not_Present);
            }
        return responseCompanyList;
     }
 
     public Object addCompany(RequestCompany requestCompany) {
-    //    long companyId =requestCompany.g
         if(companyRepository.existsByCompanyName(requestCompany.getCompanyName()))
           {
-         //   if(companyRepository.findById())
            CompanyEntity companyEntity=   companyRepository.findByCompanyName(requestCompany.getCompanyName());
-            if(companyEntity.getIsActive())
-            return Duplicate_Name_Error;
-            companyEntity.setActive(true);
-            companyRepository.save(companyEntity);
-            return Add_Success +" "+Company_ID +companyEntity.getCompanyId();
+           if(companyEntity.getIsActive())
+               return   new Response(404, Duplicate_Name_Error);
+           companyEntity.setActive(true);
+           companyRepository.save(companyEntity);
+           return new Response(201, Add_Success +" "+Company_ID +companyEntity.getCompanyId());
           }
        else {
-           CompanyEntity companyEntity=new CompanyEntity(requestCompany.getCompanyName(), requestCompany.getCeoName(),true);
-           try {
+           CompanyEntity companyEntity=new CompanyEntity(requestCompany.getCompanyName(),requestCompany.getCeoName(),true);
                this.companyRepository.save(companyEntity);
-               return Add_Success +" "+Company_ID +companyEntity.getCompanyId();
-           }catch(Exception e)
-           {
-               return Add_Failed;
-           }
+               return new Response( 201, Add_Success +" "+Company_ID +companyEntity.getCompanyId());
        }
-
     }
 
 
 
-    public Object getCompanyDetails(Long id) throws NotFoundException{
+    public Object getCompanyDetails(Long id) throws CustomException {
        Optional<CompanyEntity>  companyEntity= Optional.ofNullable(companyRepository.findByCompanyIdAndIsActive(id, true));//.orElseThrow(() -> new NotFoundException(id));
          if(companyEntity.isPresent()) {
              CompanyEntity companyEntity1 = companyEntity.get();
              return new ResponseCompany(companyEntity1.getCompanyId(), companyEntity1.getCompanyName(), companyEntity1.getCeoName());
          }
-         throw   new NotFoundException();
+        throw   new CustomException();
     }
 
 
 
-    public ResponseError deleteCompanyDetails(Long company_id) {
+    public Response deleteCompanyDetails(Long company_id) throws CustomException {
              Optional<CompanyEntity> companyEntity=companyRepository.findById(company_id);
                 if(companyEntity.isPresent()) {
                        CompanyEntity companyEntity1 = companyEntity.get();
@@ -102,56 +93,49 @@ public class CompanyService {
                                e.printStackTrace();
                            }
                        });
-                         ResponseError responseError = new ResponseError(200, Delete_Success);
-                         return responseError;
+                return new Response(200, Delete_Success);
                      }
-                else{
-                    ResponseError responseError = new ResponseError(204, Failed);
-                    return responseError;
-                }
-
+                throw new CustomException(Failed);
     }
 
-    public ResponseError updateDetails(CompanyEntity updateCompanyEntity) throws  NotFoundException{
+    public Response updateDetails(CompanyEntity updateCompanyEntity) throws CustomException {
        long companyId=updateCompanyEntity.getCompanyId();
        Optional<CompanyEntity> companyEntity= Optional.ofNullable(companyRepository.findByCompanyIdAndIsActive(companyId, true));
         if(companyEntity.isPresent()) {
             CompanyEntity companyEntity1= companyEntity.get();
-            if (updateCompanyEntity.getCompanyName() == null) {
+            String companyName=updateCompanyEntity.getCompanyName();
+            if (companyName == null) {
                 updateCompanyEntity.setCompanyName(companyEntity1.getCompanyName());
             }
+            else if(!companyName.equals(companyEntity1.getCompanyName()))//check for unique company name , if not same as present means want to update
+            {     //System.out.println(companyName+"              "+companyEntity1.getCompanyName());
+                if(companyRepository.existsByCompanyName(companyName))
+                    throw new CustomException(Duplicate_Name_Error);
+            }                  //companyEntity.setCeoName(Optional.ofNullable(updateCompanyEntity.getCeoName()).orElseGet(companyEntity.getCeoName())
             if (updateCompanyEntity.getCeoName() == null) {
                 updateCompanyEntity.setCeoName(companyEntity1.getCeoName());
-            }try {
-                companyRepository.save(updateCompanyEntity);
-            } catch (Exception e) {
-                ResponseError responseError =new ResponseError(500 , Failed);
-                return responseError;
             }
-            ResponseError responseError =new ResponseError(500 , Update_Success);
-            return responseError;
+            companyRepository.save(updateCompanyEntity);
+           return new Response(500 , Update_Success);
         }
-        ResponseError responseError =new ResponseError(500 , Failed);
-        return responseError;
+        throw  new CustomException(Failed);
     }
 
-    public Object getCompanyCompleteDetails(long companyId) {
+
+
+    public Object getCompanyCompleteDetails(long companyId){
       Optional<CompanyEntity> companyEntity= Optional.ofNullable(companyRepository.findByCompanyIdAndIsActive(companyId, true));
       if(companyEntity.isPresent())
       {
          List<DepartmentEntity> departmentEntityList= departmentServices.getAllDepartmentsOfCompany(companyId);
-          if(departmentEntityList.isEmpty()) {
-              ResponseError responseError = new ResponseError(200, "No Department Present with given company Id!!");
-              return responseError;
+              if(departmentEntityList.isEmpty()) {
+                 return new Response(204, Not_Dept_Present);
           }
           else {
               List<ResponseDepartment>responseDepartmentList= new ArrayList<>();
               return departmentEntityListToResponseDeptList.convert(departmentEntityList);
           }
       }
-        ResponseError responseError =new ResponseError(200 , "Company not found!!");
-        return responseError;
+     return new Response(200 , Not_Present);
     }
-
-
 }

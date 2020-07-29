@@ -1,6 +1,6 @@
 package Work1.Project1.Package.interceptor;
 
-import Work1.Project1.Package.exception.NotFoundException;
+import Work1.Project1.Package.exception.CustomException;
 import Work1.Project1.Package.interfaces.LoggingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.DispatcherType;
@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
 
+import static Work1.Project1.Package.constants.ApplicationConstants.StartTime;
+
 
 @Component
 public class ImplementInterceptor extends HandlerInterceptorAdapter {
@@ -21,10 +23,10 @@ public class ImplementInterceptor extends HandlerInterceptorAdapter {
 
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws NotFoundException{
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws CustomException {
 
 
-        Enumeration header= request.getHeaderNames();
+        Enumeration header= request.getHeaderNames(); //getheader("")
        while (header.hasMoreElements()) {
            String key = (String) header.nextElement();
             String value = request.getHeader(key);
@@ -40,14 +42,14 @@ public class ImplementInterceptor extends HandlerInterceptorAdapter {
                       String uri="https://e6707348-a2a6-4a80-9d7a-c89850abe893.mock.pstmn.io";
                       RestTemplate restTemplate = new RestTemplate();
                       String result = restTemplate.getForObject(uri, String.class);
-                      throw   new NotFoundException(result);
+                      throw   new CustomException(result);
                   }
             }
         }
-      if (DispatcherType.REQUEST.name().equals(request.getDispatcherType().name()) && request.getMethod().equals(HttpMethod.GET.name())) {
-                loggingService.logRequest(request, null);
-            }
+        if (DispatcherType.REQUEST.name().equals(request.getDispatcherType().name()) && request.getMethod().equals(HttpMethod.GET.name()) ) {
 
+            loggingService.logRequest(request, null);
+            }
             return true;
 
     }

@@ -1,15 +1,16 @@
 package Work1.Project1.Package.controller;
 
 
-import Work1.Project1.Package.entity.EmployeeEntity;
 import Work1.Project1.Package.entity.EmployeePK;
+import Work1.Project1.Package.exception.CustomException;
 import Work1.Project1.Package.request.RequestEmployee;
-import Work1.Project1.Package.response.ResponseError;
+import Work1.Project1.Package.response.Response;
 import Work1.Project1.Package.services.EmployeeServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+;
 import static Work1.Project1.Package.constants.ApplicationConstants.Not_Present;
 
 @RestController
@@ -21,7 +22,7 @@ public class EmployeeController {
 
     @GetMapping("")
     public Object getAllEmployeesDetail(@RequestParam(defaultValue = "0") Integer pageNo,
-                                        @RequestParam(defaultValue = "2") Integer pageSize) {
+                                        @RequestParam(defaultValue = "1") Integer pageSize) {
 
         return employeeService.getAllDetails(pageNo,pageSize);
     }
@@ -30,7 +31,7 @@ public class EmployeeController {
     public Object getEmployeeDetail(@RequestBody EmployeePK employeePK) {
         Object empObject= employeeService.getEmployeeDetails(employeePK);
         if(empObject==null){
-            ResponseError responseError =new ResponseError(200 , Not_Present);
+            Response responseError =new Response(200 , Not_Present);
             return responseError;
         }
         else{
@@ -39,30 +40,31 @@ public class EmployeeController {
     }
 
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public String addEmployeeDetails(@RequestBody RequestEmployee requestEmployee){
+    public Response addEmployeeDetails(@RequestBody RequestEmployee requestEmployee) throws CustomException {
 
         return employeeService.addEmployee(requestEmployee);
     }
 
     @DeleteMapping("")
-    public String deleteEmployee(@RequestParam("employeeId") Long employeeId,
+    public Response deleteEmployee(@RequestParam("employeeId") Long employeeId,
                                  @RequestParam("departmentId") Long departmentId,
                                  @RequestParam("companyId") Long companyId) throws Exception {
-        EmployeePK employeePK = new EmployeePK( companyId,departmentId,employeeId);
-        return employeeService.deleteEmployeeDetails(employeePK);
+
+        return employeeService.deleteEmployeeDetails(companyId,departmentId,employeeId);
 
     }
 
-     //.....................
-    @RequestMapping(value = "/update-details", method = RequestMethod.PUT)
-    public String updateEmployeeDetails( @RequestParam("employeeId") Long employeeId, @RequestParam("departmentId") Long departmentId,
-                                       @RequestParam("companyId") Long companyId , @RequestParam("phone") String phone,
-                                       @RequestParam("empName") String empName, @RequestParam("salary") Long salary){
+
+   @RequestMapping(value = "/update-details", method = RequestMethod.PUT)
+    public Response updateEmployeeDetails( @RequestParam("employeeId") Long employeeId, @RequestParam("departmentId") Long departmentId,
+                                       @RequestParam("companyId") Long companyId , @RequestParam(value = "phone",defaultValue ="o") String phone,
+                                       @RequestParam(value = "empName",defaultValue ="o") String empName,
+                                       @RequestParam(value="salary",defaultValue = "0") Long salary){
      return  employeeService.updateDetails(employeeId,departmentId,companyId,phone,empName,salary);
     }
 
     @RequestMapping(value = "/update-salary", method = RequestMethod.PUT)
-    public String updateSalary(@RequestParam("companyId") Long companyId,
+    public Response updateSalary(@RequestParam("companyId") Long companyId,
                              @RequestParam(value = "departmentId" ,defaultValue ="-1") Long departmentId,
                              @RequestParam(value = "employeeId",defaultValue ="-1") Long employeeId,
                              @RequestParam("increment") Long increment,

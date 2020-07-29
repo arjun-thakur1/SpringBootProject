@@ -57,8 +57,8 @@ public class LogServiceImpl implements LoggingService {
             long endTime=System.currentTimeMillis();
             stringBuilder.append("EndTime=[").append(endTime).append("] ");
 
-     //      long startTime = (Long) httpServletRequest.getAttribute("startTime");
-       //    stringBuilder.append("Timetaken=[").append(endTime-startTime).append("] ");
+      //long startTime = (Long) httpServletRequest.getAttribute(StartTime);
+      //stringBuilder.append("Timetaken=[").append(endTime-startTime).append("] ");
 
             log.info(stringBuilder.toString());
         }

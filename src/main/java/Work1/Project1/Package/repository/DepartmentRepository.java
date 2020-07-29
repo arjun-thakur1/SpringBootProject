@@ -24,4 +24,6 @@ public interface DepartmentRepository extends JpaRepository<DepartmentEntity, De
     List<DepartmentEntity> findAllByDepartmentPKCompanyIdAndIsActive(long companyId, boolean b);
 
     boolean existsByDepartmentPKAndIsActive(DepartmentPK departmentPK, boolean b);
+
+    Optional<DepartmentEntity> findByDepartmentPKAndManagerIdAndIsActive(DepartmentPK departmentPK, long employeeId, boolean b);
 }

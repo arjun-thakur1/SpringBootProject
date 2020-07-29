@@ -1,5 +1,6 @@
 package Work1.Project1.Package.services;
 import Work1.Project1.Package.entity.EmployeeEntity;
+import Work1.Project1.Package.exception.CustomException;
 import Work1.Project1.Package.request.RequestEmployee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,15 +16,15 @@ public class KafkaConsumer {
     EmployeeServices employeeServices;
 
     @KafkaListener(topics = "testTopic",  groupId="group_id",containerFactory = "employeeEntityKafkaListenerContainerFactory")
-    public void consumeJson(EmployeeEntity employeeEntity) {
+    public void consumeJson(EmployeeEntity employeeEntity) throws CustomException {
 
         RequestEmployee requestEmployee=new RequestEmployee(employeeEntity.getEmployeePK().getCompanyId(),
                 employeeEntity.getEmployeePK().getDepartmentId(), employeeEntity.getEmpName(),employeeEntity.getPhone(),
                 employeeEntity.getSalary());
-        if(Add_Failed==employeeServices.addEmployee(requestEmployee))
+        if(employeeServices.addEmployee(requestEmployee).getStatus()==404) //if add failed means status code 404 in response
         {
-            employeeServices.updateDetails(employeeEntity.getEmployeePK().getCompanyId(),employeeEntity.getEmployeePK().getDepartmentId(),employeeEntity.getEmployeePK().getCompanyId(),
-                    employeeEntity.getEmpName(),employeeEntity.getPhone(),employeeEntity.getSalary());
+            employeeServices.updateDetails(employeeEntity.getEmployeePK().getCompanyId(),employeeEntity.getEmployeePK().getDepartmentId(),
+                    employeeEntity.getEmployeePK().getCompanyId(), employeeEntity.getEmpName(),employeeEntity.getPhone(),employeeEntity.getSalary());
         }
     }
 

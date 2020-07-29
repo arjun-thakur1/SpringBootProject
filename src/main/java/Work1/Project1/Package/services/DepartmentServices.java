@@ -2,11 +2,11 @@ package Work1.Project1.Package.services;
 
 import Work1.Project1.Package.converter.DepartmentEntityListToResponseDeptList;
 import Work1.Project1.Package.entity.*;
+import Work1.Project1.Package.exception.CustomException;
 import Work1.Project1.Package.repository.CompanyRepository;
 import Work1.Project1.Package.repository.DepartmentRepository;
 import Work1.Project1.Package.repository.EmployeeRepository;
-import Work1.Project1.Package.request.RequestUpdateDepartment;
-import Work1.Project1.Package.response.ResponseError;
+import Work1.Project1.Package.response.Response;
 import Work1.Project1.Package.request.RequestDepartment;
 import Work1.Project1.Package.response.ResponseDepartment;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +33,8 @@ public class DepartmentServices {
 
     @Autowired
     DepartmentEntityListToResponseDeptList departmentEntityListToResponseDeptList;
+    @Autowired
+    EmployeeServices employeeServices;
 
     public Object getAllDetails() {
             List<CompanyEntity> allCompanyEntity= companyRepository.findAllByIsActive(true);
@@ -43,42 +45,44 @@ public class DepartmentServices {
                         mapp.put(l.getCompanyId() , responseDepartmentEntities);
                     }
                     );
+            if(mapp.isEmpty())
+              return new Response(204 , "No content!!");
 
-          if(mapp.isEmpty())
-              return null;
            return  mapp;
     }
 
 
-    public String addDepartment(RequestDepartment requestDepartment) {
+    public Response addDepartment(RequestDepartment requestDepartment) {
 //
         long companyId=requestDepartment.getCompanyId();
         boolean companyPresent=companyRepository.existsById(companyId);
          if(!companyPresent)
-             return Failed;
+             return new Response(404,Add_Failed);
         String departmentName=requestDepartment.getDepartmentName();
         if(departmentRepository.existsByDepartmentPKCompanyIdAndDepartmentName(companyId ,departmentName))
         {
             DepartmentEntity departmentEntity= departmentRepository.findByDepartmentPKCompanyIdAndDepartmentName(companyId,departmentName);
              if(departmentEntity.getIsActive())
-                 return Failed;
+                 return new Response(404,Add_Failed);
              departmentEntity.setActive(true);
              departmentEntity.setManagerId(-1);
-            departmentRepository.save(departmentEntity);
-            return "Department with ID "+departmentEntity.getDepartmentPK().getDepartmentId() +Add_Success;
+             departmentRepository.save(departmentEntity);
+             return new Response(201,"Department with ID " + departmentEntity.getDepartmentPK().getDepartmentId() + Add_Success);
         }
            long departmentId= departmentRepository.countByDepartmentPKCompanyId(requestDepartment.getCompanyId());
            DepartmentPK departmentPK = new DepartmentPK(companyId, departmentId);
            DepartmentEntity departmentEntity = new DepartmentEntity(departmentPK, departmentName,true,-1);
            this.departmentRepository.save(departmentEntity);
-           return "Department with ID "+departmentId +" Successfully added!!";
+           return new Response(201,"Department with ID " + departmentEntity.getDepartmentPK().getDepartmentId() + Add_Success);
     }
+
+
 
     public Object getDepartmentDetail(Long departmentId, Long companyId) {
         DepartmentPK departmentPK = new  DepartmentPK(companyId,departmentId);
             Optional<DepartmentEntity> departmentEntity=departmentRepository.findByDepartmentPKAndIsActive(departmentPK,true);
             if(!departmentEntity.isPresent())
-               return Failed;
+               return  new Response(404,Failed) ;
             else
             {
                 DepartmentEntity departmentEntity1=departmentEntity.get();
@@ -96,22 +100,26 @@ public class DepartmentServices {
             departmentEntity1.setActive(false);
             departmentEntity1.setManagerId(-1);
             departmentRepository.save(departmentEntity1);
-            ResponseError responseError = new ResponseError(200, Delete_Success);
-            return responseError;
+            List<EmployeeEntity> employeeEntityList=employeeRepository.findAllByEmployeePKCompanyIdAndEmployeePKDepartmentId
+                    (departmentPK.getCompanyId(),departmentPK.getDepartmentId());
+            employeeEntityList.forEach((e)->{
+                try {
+                    employeeServices.deleteEmployeeDetails(e.getEmployeePK().getCompanyId(),e.getEmployeePK().getDepartmentId(),
+                            e.employeePK.getEmployeeId());
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            });
+            return new Response(200, Delete_Success);
         }
-        else{
-            ResponseError responseError = new ResponseError(204, Failed);
-            return responseError;
-        }
+      return new Response(404, Failed);
+}
 
-    }
-
-    public ResponseError updateDetails(long companyId,long departmentId,String departmentName,long managerId) {
+    public Response updateDetails(long companyId, long departmentId, String departmentName, long managerId) {
        DepartmentPK departmentPK= new DepartmentPK(companyId,departmentId);
         DepartmentEntity updateDepartmentEntity=new DepartmentEntity( departmentPK, departmentName,true,managerId);
         if(!departmentRepository.existsByDepartmentPKAndIsActive(departmentPK,true)) {
-            ResponseError responseError = new ResponseError(204, Failed);
-            return responseError;
+            return new Response(204, Failed);
         }
         Optional<DepartmentEntity> fetchedDepartmentEntity=departmentRepository.findById(updateDepartmentEntity.getDepartmentPK());
         if(fetchedDepartmentEntity.isPresent())
@@ -126,15 +134,10 @@ public class DepartmentServices {
                 updateDepartmentEntity.setManagerId(departmentEntity.getManagerId());
             }
             departmentRepository.save(updateDepartmentEntity);
-            ResponseError responseError =new ResponseError(200 , Update_Success);
-            return responseError;
-        }
-        else
-        {
-            ResponseError responseError =new ResponseError(204 , Failed);
-            return responseError;
+            return new Response(200 , Update_Success);
         }
 
+        return new Response(204 , Failed);
     }
 
     public List<DepartmentEntity> getAllDepartmentsOfCompany(long companyId) {
