@@ -1,9 +1,7 @@
 
-c
-java:S4488'"HReplace "@RequestMapping(method = RequestMethod.GET)" with "@GetMapping"(¦ü³´ûÿÿÿÿ
+]	java:S125;"<This block of commented-out lines of code should be removed.(ù¼…´ýÿÿÿÿ8ÇÁÓ¡¹.
 t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(™§ÅÁüÿÿÿÿ
-‡
-java:S1488"eImmediately return this expression instead of assigning it to the temporary variable "responseError".(üŽñ ýÿÿÿÿ8ØÃõ¸.
-]	java:S125F"<This block of commented-out lines of code should be removed.(ù¼…´ýÿÿÿÿ8ÇÁÓ¡¹.
+d
+java:S4488"HReplace "@RequestMapping(method = RequestMethod.GET)" with "@GetMapping"(ÿ—Ÿp8ê»œû¹.
 c
-java:S4488B"HReplace "@RequestMapping(method = RequestMethod.PUT)" with "@PutMapping"(°™ª©üÿÿÿÿ
+java:S44887"HReplace "@RequestMapping(method = RequestMethod.PUT)" with "@PutMapping"(°™ª©üÿÿÿÿ

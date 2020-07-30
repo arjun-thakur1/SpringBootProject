@@ -37,4 +37,8 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Employ
     EmployeeEntity findByPhone(String phone);
 
     List<EmployeeEntity> findAllByEmployeePKCompanyIdAndEmployeePKDepartmentId(Long companyId, Long departmentId);
+
+    boolean existsByPhoneAndEmployeePKCompanyIdAndEmployeePKDepartmentId(String phone, long companyId, long departmentId);
+
+    EmployeeEntity findByPhoneAndEmployeePKCompanyIdAndEmployeePKDepartmentId(String phone, long companyId, long departmentId);
 }

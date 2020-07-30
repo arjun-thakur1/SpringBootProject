@@ -6,7 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 //import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 //import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 //import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 //import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 //import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -21,8 +23,10 @@ public class Project1Application {
 	public static void main(String[] args) throws Exception{
 
 			SpringApplication.run(Project1Application.class, args);
-
 	}
-
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
 
 }

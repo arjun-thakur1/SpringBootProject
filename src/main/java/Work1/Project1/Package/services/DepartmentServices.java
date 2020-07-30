@@ -58,7 +58,7 @@ public class DepartmentServices {
         boolean companyPresent=companyRepository.existsById(companyId);
          if(!companyPresent)
              return new Response(404,Add_Failed);
-        String departmentName=requestDepartment.getDepartmentName();
+        String departmentName=requestDepartment.getDepartmentName().toLowerCase();
         if(departmentRepository.existsByDepartmentPKCompanyIdAndDepartmentName(companyId ,departmentName))
         {
             DepartmentEntity departmentEntity= departmentRepository.findByDepartmentPKCompanyIdAndDepartmentName(companyId,departmentName);
@@ -115,23 +115,29 @@ public class DepartmentServices {
       return new Response(404, Failed);
 }
 
-    public Response updateDetails(long companyId, long departmentId, String departmentName, long managerId) {
+    public Response updateDetails(long companyId, long departmentId, String department, long managerId) {
+        String departmentName=department.toLowerCase();
        DepartmentPK departmentPK= new DepartmentPK(companyId,departmentId);
         DepartmentEntity updateDepartmentEntity=new DepartmentEntity( departmentPK, departmentName,true,managerId);
         if(!departmentRepository.existsByDepartmentPKAndIsActive(departmentPK,true)) {
-            return new Response(204, Failed);
+            return new Response(404, Failed);
         }
-        Optional<DepartmentEntity> fetchedDepartmentEntity=departmentRepository.findById(updateDepartmentEntity.getDepartmentPK());
+        Optional<DepartmentEntity> fetchedDepartmentEntity=departmentRepository.findById(departmentPK);
         if(fetchedDepartmentEntity.isPresent())
         {
             DepartmentEntity departmentEntity=fetchedDepartmentEntity.get();
-            if(updateDepartmentEntity.getDepartmentName()==null)    //if update dept name not given so existing name
+            if(departmentName.equals("null"))    //if update dept name not given so existing name
             {
                 updateDepartmentEntity.setDepartmentName(departmentEntity.getDepartmentName());
             }
-            if(updateDepartmentEntity.getManagerId()==-1)   //if updated manager id not given then existing
+            if(managerId==-1)   //if updated manager id not given then existing
             {
                 updateDepartmentEntity.setManagerId(departmentEntity.getManagerId());
+            }
+            else //check for employee present for that managerid
+            {
+                if(! employeeRepository.existsById(new EmployeePK(companyId,departmentId,managerId)))
+                   return new Response(204 , Failed);
             }
             departmentRepository.save(updateDepartmentEntity);
             return new Response(200 , Update_Success);

@@ -13,8 +13,13 @@ import Work1.Project1.Package.response.Response;
 import Work1.Project1.Package.request.RequestCompany;
 import Work1.Project1.Package.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,8 +27,10 @@ import java.util.Optional;
 import static Work1.Project1.Package.constants.ApplicationConstants.*;
 
 @Service
-public class CompanyService {
+//@CacheConfig(cacheNames={"company_cache"})
+public class CompanyService implements Serializable {
 
+    private static final long serialVersionUID = 7156526077883281623L;
     @Autowired
     private CompanyRepository companyRepository;
 
@@ -38,6 +45,9 @@ public class CompanyService {
     @Autowired
     private DepartmentEntityListToResponseDeptList departmentEntityListToResponseDeptList;
 
+    @Autowired
+    Caching caching;
+
     public Object getAllDetails() throws CustomException {
        List<CompanyEntity>companyEntities= companyRepository.findAllByIsActive(true);
         List<ResponseCompany>responseCompanyList = companyEntityListToResponseCompanyList.convert(companyEntities);
@@ -48,10 +58,14 @@ public class CompanyService {
        return responseCompanyList;
     }
 
+
     public Object addCompany(RequestCompany requestCompany) {
-        if(companyRepository.existsByCompanyName(requestCompany.getCompanyName()))
+        String companyName= requestCompany.getCompanyName().toLowerCase();
+        String ceoName=requestCompany.getCeoName().toLowerCase();
+        if(companyRepository.existsByCompanyName(companyName))
           {
-           CompanyEntity companyEntity=   companyRepository.findByCompanyName(requestCompany.getCompanyName());
+               //company name unique so in lower-case
+           CompanyEntity companyEntity=   companyRepository.findByCompanyName(companyName);
            if(companyEntity.getIsActive())
                return   new Response(404, Duplicate_Name_Error);
            companyEntity.setActive(true);
@@ -59,21 +73,20 @@ public class CompanyService {
            return new Response(201, Add_Success +" "+Company_ID +companyEntity.getCompanyId());
           }
        else {
-           CompanyEntity companyEntity=new CompanyEntity(requestCompany.getCompanyName(),requestCompany.getCeoName(),true);
+           CompanyEntity companyEntity=new CompanyEntity(companyName,ceoName,true);
                this.companyRepository.save(companyEntity);
                return new Response( 201, Add_Success +" "+Company_ID +companyEntity.getCompanyId());
        }
     }
 
 
-
+   // @Cacheable(value = "company_cache",key="#id")
     public Object getCompanyDetails(Long id) throws CustomException {
        Optional<CompanyEntity>  companyEntity= Optional.ofNullable(companyRepository.findByCompanyIdAndIsActive(id, true));//.orElseThrow(() -> new NotFoundException(id));
          if(companyEntity.isPresent()) {
-             CompanyEntity companyEntity1 = companyEntity.get();
-             return new ResponseCompany(companyEntity1.getCompanyId(), companyEntity1.getCompanyName(), companyEntity1.getCeoName());
-         }
-        throw   new CustomException();
+            return caching.getCompany(id);
+          }
+         throw   new CustomException();
     }
 
 
@@ -84,6 +97,7 @@ public class CompanyService {
                        CompanyEntity companyEntity1 = companyEntity.get();
                        companyEntity1.setActive(false);
                        companyRepository.save(companyEntity1);
+                       caching.deleteCompany(company_id);
                        List<DepartmentEntity> departmentEntityList=departmentRepository.findAllByDepartmentPKCompanyId(company_id);
                        departmentEntityList.forEach((d)->{
                            DepartmentPK departmentPK=new DepartmentPK(d.getDepartmentPK().getCompanyId(),d.getDepartmentPK().getDepartmentId());
@@ -98,24 +112,27 @@ public class CompanyService {
                 throw new CustomException(Failed);
     }
 
-    public Response updateDetails(CompanyEntity updateCompanyEntity) throws CustomException {
-       long companyId=updateCompanyEntity.getCompanyId();
+    public Response updateDetails(long  companyId, String company,String ceo)throws CustomException  {   ////CompanyEntity updateCompanyEntity)
+        String companyName=company.toLowerCase();
+        String ceoName=ceo.toLowerCase();
+       CompanyEntity updateCompanyEntity =new CompanyEntity(companyId,companyName,ceoName,true);
+       // long companyId=updateCompanyEntity.getCompanyId();
        Optional<CompanyEntity> companyEntity= Optional.ofNullable(companyRepository.findByCompanyIdAndIsActive(companyId, true));
         if(companyEntity.isPresent()) {
             CompanyEntity companyEntity1= companyEntity.get();
-            String companyName=updateCompanyEntity.getCompanyName();
-            if (companyName == null) {
+         //   String companyName=updateCompanyEntity.getCompanyName();
+            if (companyName.equals("null") ){
                 updateCompanyEntity.setCompanyName(companyEntity1.getCompanyName());
             }
             else if(!companyName.equals(companyEntity1.getCompanyName()))//check for unique company name , if not same as present means want to update
-            {     //System.out.println(companyName+"              "+companyEntity1.getCompanyName());
+            {
                 if(companyRepository.existsByCompanyName(companyName))
                     throw new CustomException(Duplicate_Name_Error);
             }                  //companyEntity.setCeoName(Optional.ofNullable(updateCompanyEntity.getCeoName()).orElseGet(companyEntity.getCeoName())
-            if (updateCompanyEntity.getCeoName() == null) {
+            if (ceoName.equals("null")) {
                 updateCompanyEntity.setCeoName(companyEntity1.getCeoName());
             }
-            companyRepository.save(updateCompanyEntity);
+            caching.update(companyId,updateCompanyEntity);
            return new Response(500 , Update_Success);
         }
         throw  new CustomException(Failed);

@@ -55,7 +55,7 @@ public class DepartmentController {
     @RequestMapping(value = "/update-details", method = RequestMethod.PUT)
     public Response updateDepartmentDetails(@RequestParam(value = "companyId") Long companyId,
                                             @RequestParam("departmentId") Long departmentId,
-                                            @RequestParam("departmentName") String departmentName,
+                                            @RequestParam(value="departmentName",defaultValue = "null") String departmentName,
                                             @RequestParam(value="managerId",defaultValue = "-1") Long managerId) { // RequestUpdateDepartment requestUpdateDepartment) {
 
         return  departmentService.updateDetails(companyId,departmentId,departmentName,managerId);

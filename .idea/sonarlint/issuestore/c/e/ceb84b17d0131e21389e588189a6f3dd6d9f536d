@@ -1,31 +1,28 @@
 
-i
-java:S39735"GUse indentation to denote the code conditionally executed by this "if".(‰·’üøÿÿÿÿ8¶ëœ‰¹.
-‚
-java:S1488d"eImmediately return this expression instead of assigning it to the temporary variable "responseError".(œÖ–8ÅäÅ©¹.
-
-java:S1488~"eImmediately return this expression instead of assigning it to the temporary variable "responseError".(™³÷?8ÃÉÔ©¹.
-®
-java:S1130$"‹Remove the declaration of thrown exception 'Work1.Project1.Package.exception.NotFoundException', as it cannot be thrown from method's body.(¯şøëùÿÿÿÿ8çÄı¸.
-r	java:S117U"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ááè‰úÿÿÿÿ8ÅäÅ©¹.
-ƒ
-java:S1488‹"eImmediately return this expression instead of assigning it to the temporary variable "responseError".(´Ã°”8ÃÉÔ©¹.
-]	java:S125K"<This block of commented-out lines of code should be removed.(Áƒ úÿÿÿÿ8ª€Àü¸.
-‡
-java:S1488)"eImmediately return this expression instead of assigning it to the temporary variable "responseError".(üñ ıÿÿÿÿ8¨ÔÄı¸.
+W	java:S125{"<This block of commented-out lines of code should be removed.(Ú¹Îa8è…›õ¹.
+R
+java:S1066"/Merge this if statement with the enclosing one.(¯±¬¿ûÿÿÿÿ8ÙÕ†õ¹.
+e
+java:S1948."HMake "departmentEntityListToResponseDeptList" transient or serializable.(Í±›²8„€–ø¹.
+]	java:S125U"<This block of commented-out lines of code should be removed.(Áƒ úÿÿÿÿ8ª€Àü¸.
+n
+java:S1128"LRemove this unused import 'org.springframework.cache.annotation.CacheEvict'.(½Á¨ˆøÿÿÿÿ8œÅø¹.
+V
+java:S1948&"4Make "departmentServices" transient or serializable.(¢·ö¤üÿÿÿÿ8„€–ø¹.
+j
+java:S1948,"HMake "companyEntityListToResponseCompanyList" transient or serializable.(ç¤‰øûÿÿÿÿ8„€–ø¹.
+X	java:S125w"<This block of commented-out lines of code should be removed.(ËïÕì8¾ìšõ¹.
+P
+java:S1948#"3Make "companyRepository" transient or serializable.(³§ß‡8„€–ø¹.
+m	java:S117^"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(§õë†8ÙÕ†õ¹.
 Q
-java:S1611\"/Remove the parentheses around the "d" parameter(ÄµÛÁúÿÿÿÿ8ÅäÅ©¹.
-ˆ
-java:S1488"eImmediately return this expression instead of assigning it to the temporary variable "responseError".(•˜’‚ùÿÿÿÿ8ÃÉÔ©¹.
-‡
-java:S1488h"eImmediately return this expression instead of assigning it to the temporary variable "responseError".(Ø£»ìúÿÿÿÿ8ÅäÅ©¹.
-®
-java:S1130n"‹Remove the declaration of thrown exception 'Work1.Project1.Package.exception.NotFoundException', as it cannot be thrown from method's body.(ÕĞêúÿÿÿÿ8·ÆŞ©¹.
+java:S1611f"/Remove the parentheses around the "d" parameter(ÄµÛÁúÿÿÿÿ8ÅäÅ©¹.
+l
+java:S1128"JRemove this unused import 'org.springframework.cache.annotation.CachePut'.(ıâ‰ şÿÿÿÿ8¦ë§÷¹.
 t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¼ú²Ëşÿÿÿÿ
-©
-java:S26817"†This line will not be executed conditionally; only the first line of this 2-line block will be. The rest will execute unconditionally.(¦áõ¸ıÿÿÿÿ8Ùª‰¹.
-‡
-java:S1488{"eImmediately return this expression instead of assigning it to the temporary variable "responseError".(•˜’‚ùÿÿÿÿ8ÃÉÔ©¹.
-W	java:S1253"<This block of commented-out lines of code should be removed.(‚Ç[8©‘ ş¸.
-ƒ
-java:S1488‘"eImmediately return this expression instead of assigning it to the temporary variable "responseError".(¶•8ÃÉÔ©¹.
+X
+java:S1948)"6Make "departmentRepository" transient or serializable.(ßÆğıÿÿÿÿ8„€–ø¹.
+^
+java:S1481˜";Remove this unused "responseDepartmentList" local variable.(‘ÑÄ°ıÿÿÿÿ8ÙÕ†õ¹.
+K
+java:S19481")Make "caching" transient or serializable.(²¨äöşÿÿÿÿ8èÖ×ú¹.

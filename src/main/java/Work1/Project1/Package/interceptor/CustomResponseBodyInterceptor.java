@@ -1,6 +1,6 @@
 package Work1.Project1.Package.interceptor;
 
-    import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -12,32 +12,32 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 
-    import Work1.Project1.Package.interfaces.LoggingService;
+import Work1.Project1.Package.interfaces.LoggingService;
 
-    @ControllerAdvice
+@ControllerAdvice
 
-    public class CustomResponseBodyInterceptor implements ResponseBodyAdvice<Object> {
-
-
-        @Autowired
-        LoggingService loggingService;
-
-        @Override
-        public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
-            return true;
-        }
-
-        @Override
-        public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType,
-                                      Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-            if (serverHttpRequest instanceof ServletServerHttpRequest && serverHttpResponse instanceof ServletServerHttpResponse) {
-                loggingService.logResponse(((ServletServerHttpRequest) serverHttpRequest).getServletRequest(),
-                        ((ServletServerHttpResponse) serverHttpResponse).getServletResponse(), o);
-            }
-
-            return o;
-        }
+public class CustomResponseBodyInterceptor implements ResponseBodyAdvice<Object> {
 
 
+    @Autowired
+    LoggingService loggingService;
+
+    @Override
+    public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
+        return true;
     }
+
+    @Override
+    public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType,
+                                  Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+        if (serverHttpRequest instanceof ServletServerHttpRequest && serverHttpResponse instanceof ServletServerHttpResponse) {
+            loggingService.logResponse(((ServletServerHttpRequest) serverHttpRequest).getServletRequest(),
+                    ((ServletServerHttpResponse) serverHttpResponse).getServletResponse(), o);
+        }
+
+        return o;
+    }
+
+
+}
 

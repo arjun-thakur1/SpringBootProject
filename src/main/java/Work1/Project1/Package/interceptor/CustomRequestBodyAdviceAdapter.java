@@ -1,6 +1,6 @@
 
 package Work1.Project1.Package.interceptor;
- //   package com.frandorado.loggingrequestresponsewithbody.interceptor;
+//   package com.frandorado.loggingrequestresponsewithbody.interceptor;
 
 import java.lang.reflect.Type;
 
@@ -15,27 +15,26 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAd
 
 import Work1.Project1.Package.interfaces.LoggingService;
 
-    @ControllerAdvice
-    public class CustomRequestBodyAdviceAdapter extends RequestBodyAdviceAdapter {
+@ControllerAdvice
+public class  CustomRequestBodyAdviceAdapter extends RequestBodyAdviceAdapter {
 
-        @Autowired
-        LoggingService loggingService;
+    @Autowired
+    LoggingService loggingService;
 
-        @Autowired
-        HttpServletRequest httpServletRequest;
+    @Autowired
+    HttpServletRequest httpServletRequest;
 
-        @Override
-        public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
-            return true;
-        }
+    @Override
+    public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
+        return true;
+    }
 
-        @Override
-        public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType,
-                                    Class<? extends HttpMessageConverter<?>> converterType) {
-            loggingService.logRequest(httpServletRequest, body);
-
-            return super.afterBodyRead(body, inputMessage, parameter, targetType, converterType);
-        }
+    @Override
+    public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType,
+                                Class<? extends HttpMessageConverter<?>> converterType) {
+        loggingService.logRequest(httpServletRequest, body);
+        return super.afterBodyRead(body, inputMessage, parameter, targetType, converterType);
+    }
 
 
 }

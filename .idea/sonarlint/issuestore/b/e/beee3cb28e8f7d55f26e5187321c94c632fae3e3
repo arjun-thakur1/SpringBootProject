@@ -1,0 +1,10 @@
+
+Y
+java:S3655"<Call "companyEntity.isPresent()" before accessing the value.(™Ò¾ˆ8ÌÓô÷¹.
+v
+java:S4144)"ZUpdate this method so that its implementation is not identical to "getCompany" on line 27.(ûÈ–x8®§ø¹.
+Y
+java:S3655,"<Call "companyEntity.isPresent()" before accessing the value.(™Ò¾ˆ8®§ø¹.
+S
+java:S1128"1Remove this unused import 'java.io.Serializable'.(èãîÂÿÿÿÿÿ8—ÿ¹ú¹.
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¼ú²Ëşÿÿÿÿ

@@ -26,7 +26,7 @@ public class LogServiceImpl implements LoggingService {
             Map<String, String> parameters = buildParametersMap(httpServletRequest);
 
             long startTime=System.currentTimeMillis();
-            httpServletRequest.setAttribute(StartTime, startTime);
+            httpServletRequest.setAttribute("startTime", startTime);
 
             stringBuilder.append(Request);
                stringBuilder.append("method=[").append(httpServletRequest.getMethod()).append("] ");
@@ -57,8 +57,8 @@ public class LogServiceImpl implements LoggingService {
             long endTime=System.currentTimeMillis();
             stringBuilder.append("EndTime=[").append(endTime).append("] ");
 
-      //long startTime = (Long) httpServletRequest.getAttribute(StartTime);
-      //stringBuilder.append("Timetaken=[").append(endTime-startTime).append("] ");
+      long startTime = (Long) httpServletRequest.getAttribute("startTime");
+      stringBuilder.append("Timetaken=[").append(endTime-startTime).append("] ");
 
             log.info(stringBuilder.toString());
         }

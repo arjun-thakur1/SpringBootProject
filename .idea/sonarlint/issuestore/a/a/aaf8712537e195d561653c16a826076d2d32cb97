@@ -1,5 +1,5 @@
 
-X	java:S125+"<This block of commented-out lines of code should be removed.(Ş¸Ó 8ˆÂØ©¹.
+¬
+java:S11305"‰Remove the declaration of thrown exception 'Work1.Project1.Package.exception.CustomException', as it cannot be thrown from method's body.(ø»Şúÿÿÿÿ8ÕŸ†õ¹.
+]	java:S125)"<This block of commented-out lines of code should be removed.(íß—ñüÿÿÿÿ8ÕŸ†õ¹.
 t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(™§ÅÁüÿÿÿÿ
-®
-java:S11307"‹Remove the declaration of thrown exception 'Work1.Project1.Package.exception.NotFoundException', as it cannot be thrown from method's body.(ô¶¿Îıÿÿÿÿ8Ê€Âˆ¹.

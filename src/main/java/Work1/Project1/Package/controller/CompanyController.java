@@ -37,9 +37,9 @@ public class CompanyController {
 
     @PutMapping("")
      public Response updateCompanyDetails(@RequestParam("companyId") long companyId,
-                                          @RequestParam("companyName") String companyName,
-                                          @RequestParam("ceoName") String ceoName) throws CustomException {   //CompanyEntity companyEntity ) {
-        return companyService.updateDetails(new CompanyEntity(companyId,companyName,ceoName,true));
+                                          @RequestParam(value ="companyName",defaultValue = "null") String companyName,
+                                          @RequestParam(value="ceoName",defaultValue = "null") String ceoName) throws CustomException {   //CompanyEntity companyEntity ) {
+        return companyService.updateDetails(companyId,companyName,ceoName);
     }
 
 

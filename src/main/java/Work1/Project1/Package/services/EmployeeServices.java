@@ -30,7 +30,6 @@ import java.util.Optional;
 import static Work1.Project1.Package.constants.ApplicationConstants.*;
 
 @Service
-@CacheConfig(cacheNames={"employee_cache"})
 @Component
 @Transactional   //( Propagation.REQUIRES_NEW) //for cache put update in redis
 public class EmployeeServices  {
@@ -75,7 +74,7 @@ public class EmployeeServices  {
         return  companyToDeptToEmpMapp;
     }
 
-    @Cacheable(value = "employee_cache")
+  //  @Cacheable(value = "employee_cache",key="#employeePK")
     public Object getEmployeeDetails(EmployeePK employeePK) {
            Optional<EmployeeEntity> employeeEntity= Optional.ofNullable(employeeRepository.findByEmployeePKAndIsActive(employeePK, true));    //HttpStatus.OK
            if(employeeEntity.isPresent()){
@@ -87,21 +86,29 @@ public class EmployeeServices  {
 }
 
 public Response addEmployee(RequestEmployee requestEmployee) throws CustomException {
-        if(requestEmployee.getSalary()==null) throw new CustomException(Failed);
+        if(requestEmployee.getSalary()==null)
+            throw new CustomException(Failed);
+
         long companyId = requestEmployee.getCompanyId();
         long departmentId = requestEmployee.getDepartmentId();
+
         DepartmentPK departmentPK = new DepartmentPK(companyId, departmentId);
+        if (! departmentRepository.existsByDepartmentPKAndIsActive(departmentPK,true)) { //dept not present
+              return new Response(404,Add_Failed);
+        }
+
         String phone=requestEmployee.getPhone();
-         if(employeeRepository.existsByPhoneAndIsActive(phone,true))  //AndIsActive(requestEmployee.getPhone(),true))
+        if(employeeRepository.existsByPhoneAndIsActive(phone,true))  //AndIsActive(requestEmployee.getPhone(),true))
          {
-             // EmployeeEntity employeeEntity= employeeRepository.findByPhone(phone);
-             //if(employeeEntity.getIsActive())
-             return new Response(404, Failed);
+              return new Response(404, Failed);
          }
-          if(employeeRepository.existsByPhoneAndIsActive(phone,false))  //if employee is not active
-          {
-                EmployeeEntity employeeEntity= employeeRepository.findByPhone(phone);
-                if(employeeEntity.getEmployeePK().getCompanyId()==companyId && employeeEntity.getEmployeePK().getDepartmentId()==departmentId) {
+         if(employeeRepository.existsByPhoneAndIsActive(phone,false))  //if employee is not active
+          {    //check for,if want same company join....
+                boolean isPresentInSameOrg= employeeRepository.existsByPhoneAndEmployeePKCompanyIdAndEmployeePKDepartmentId
+                                                                (phone,companyId,departmentId);
+                if(isPresentInSameOrg) {
+                    EmployeeEntity employeeEntity=employeeRepository.findByPhoneAndEmployeePKCompanyIdAndEmployeePKDepartmentId
+                    (phone,companyId,departmentId);
                     employeeEntity.setActive(true);    //want to add in same org
                     employeeEntity.setSalary(requestEmployee.getSalary());
                     employeeRepository.save(employeeEntity);
@@ -109,24 +116,17 @@ public Response addEmployee(RequestEmployee requestEmployee) throws CustomExcept
                 }
           }
 
-        if (departmentRepository.existsByDepartmentPKAndIsActive(departmentPK,true)) {
+           //id generation
            long employeeId = employeeRepository.countByEmployeePKCompanyIdAndEmployeePKDepartmentId(companyId, departmentId);
             EmployeePK employeePK = new EmployeePK(companyId, departmentId, employeeId);//employeeEntity.getEmployeePK();
             EmployeeEntity employeeEntity = new EmployeeEntity(employeePK, requestEmployee.getEmpName(), requestEmployee.getPhone(),
                     requestEmployee.getSalary(), true);
-            // DepartmentPK departmentPK=new DepartmentPK(requestEmployeeEntity.getCompanyId(),)
-            if (!employeeRepository.existsById(employeePK)) {
-                this.employeeRepository.saveAndFlush(employeeEntity);
+             this.employeeRepository.saveAndFlush(employeeEntity);
                 return new Response(201,"Employee With Id " + employeeEntity.getEmployeePK().getEmployeeId() + Add_Success);
-            }
-            else {
-                return new Response(404,Add_Failed);
-            }
-        }
-        return new Response(404,Add_Failed);
+
     }
 
-    @CacheEvict(value = "employee_cache", allEntries = true)
+  //  @CacheEvict(value = "employee_cache",key="#employeePK", allEntries = true)
     public Response deleteEmployeeDetails(long companyId,long departmentId,long employeeId) throws Exception {
         EmployeePK employeePK = new EmployeePK( companyId,departmentId,employeeId);
          try {
@@ -166,7 +166,7 @@ public Response addEmployee(RequestEmployee requestEmployee) throws CustomExcept
             return new Response(204,Not_Present);
     }
 
-    @CachePut(value = "employee_cache")//,key = "#employeePK")
+  //  @CachePut(value = "employee_cache",key="#employeePK")//,key = "#employeePK")
     public Response updateDetails(long  employeeId,long departmentId,long companyId,String  phone,String empName,long salary) { //throws NotFoundException {
         EmployeePK employeePK = new EmployeePK(companyId, departmentId, employeeId);
         Optional<EmployeeEntity> fetchedEmployeeEntity = Optional.ofNullable(employeeRepository.findByEmployeePKAndIsActive
@@ -178,15 +178,16 @@ public Response addEmployee(RequestEmployee requestEmployee) throws CustomExcept
                EmployeeEntity employeeEntity = fetchedEmployeeEntity.get();
                if(!empName.equals("o"))
                 employeeEntity.setEmpName(empName);
-               if (!phone.equals("o"))
-                employeeEntity.setPhone(phone);
+               if (!phone.equals("o")) {
+                   employeeEntity.setPhone(phone);
+               }
                if (salary!=0)
                  employeeEntity.setSalary(salary);
                this.employeeRepository.save(employeeEntity);
            return new Response(200 , Update_Success);
         }
        return new Response(404 , Failed);
-}
+    }
 
 
 

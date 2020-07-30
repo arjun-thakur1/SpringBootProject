@@ -2,6 +2,7 @@ package Work1.Project1.Package.interceptor;
 
 import Work1.Project1.Package.exception.CustomException;
 import Work1.Project1.Package.interfaces.LoggingService;
+import Work1.Project1.Package.util.RestApiManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.DispatcherType;
 import org.springframework.http.HttpMethod;
@@ -21,36 +22,22 @@ public class ImplementInterceptor extends HandlerInterceptorAdapter {
     @Autowired
     LoggingService loggingService;
 
+    @Autowired
+    RestApiManager restApiManager;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws CustomException {
 
+        if(!request.getMethod().equals(HttpMethod.POST.name()))
+              loggingService.logRequest(request, handler);
 
-        Enumeration header= request.getHeaderNames(); //getheader("")
-       while (header.hasMoreElements()) {
-           String key = (String) header.nextElement();
-            String value = request.getHeader(key);
+        String header_token= request.getHeader("token");   //for authorization , hit another api
 
-            if (key.equals("token"))
-            {      if(value.equals("1"))
-                    {
-                       break;
-                    }
-                  else
-                  {
-                     //hit new api that say authorization failed
-                      String uri="https://e6707348-a2a6-4a80-9d7a-c89850abe893.mock.pstmn.io";
-                      RestTemplate restTemplate = new RestTemplate();
-                      String result = restTemplate.getForObject(uri, String.class);
-                      throw   new CustomException(result);
-                  }
-            }
-        }
-        if (DispatcherType.REQUEST.name().equals(request.getDispatcherType().name()) && request.getMethod().equals(HttpMethod.GET.name()) ) {
+        if( header_token==null || ! restApiManager.authorization(header_token))
+            throw new CustomException("Unauthoreized Request!!!");
 
-            loggingService.logRequest(request, null);
-            }
-            return true;
+
+        return true;
 
     }
 
