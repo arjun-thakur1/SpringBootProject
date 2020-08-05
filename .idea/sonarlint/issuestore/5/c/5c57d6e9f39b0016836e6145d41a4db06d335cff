@@ -1,6 +1,6 @@
 
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¹–Š×ùÿÿÿÿ
 j
 java:S1128"HRemove this unused import 'Work1.Project1.Package.entity.CompanyEntity'.(Žê›Ãùÿÿÿÿ8œÜ‘ü¹.
-t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¹–Š×ùÿÿÿÿ
 e
 java:S1128"JRemove this unused import 'org.springframework.data.redis.core.RedisHash'.(É«Š»øÿÿÿÿ

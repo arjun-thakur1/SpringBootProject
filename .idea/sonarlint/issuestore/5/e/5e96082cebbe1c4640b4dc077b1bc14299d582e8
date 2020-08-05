@@ -1,7 +1,7 @@
 
-]	java:S125;"<This block of commented-out lines of code should be removed.(ù¼…´ıÿÿÿÿ8ÇÁÓ¡¹.
-t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(™§ÅÁüÿÿÿÿ
 d
 java:S4488"HReplace "@RequestMapping(method = RequestMethod.GET)" with "@GetMapping"(ÿ—Ÿp8ê»œû¹.
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(™§ÅÁüÿÿÿÿ
+]	java:S125;"<This block of commented-out lines of code should be removed.(ù¼…´ıÿÿÿÿ8ÇÁÓ¡¹.
 c
 java:S44887"HReplace "@RequestMapping(method = RequestMethod.PUT)" with "@PutMapping"(°™ª©üÿÿÿÿ

@@ -1,6 +1,5 @@
 
-H
-java:S1452"&Remove usage of generic wildcard type.(àšÅ°ûÿÿÿÿ8˜Ò²Þ¸.
+X	java:S125"<This block of commented-out lines of code should be removed.(¡÷”¶8 ùáÒº.
+m
+java:S1128"KRemove this unused import 'Work1.Project1.Package.request.RequestEmployee'.(ë…æ¤øÿÿÿÿ8ø³»˜º.
 o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(ÖŒ÷Ê
-H
-java:S1452"&Remove usage of generic wildcard type.(àšÅ°ûÿÿÿÿ8˜Ò²Þ¸.

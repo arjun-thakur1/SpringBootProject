@@ -1,6 +1,6 @@
 
+i
+java:S1128"LRemove this unused import 'org.springframework.data.repository.query.Param'.(©”šô8æÁáù¸.
 l
 java:S1128"JRemove this unused import 'org.springframework.data.jpa.repository.Query'.(Äºöïşÿÿÿÿ8æÁáù¸.
 t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¹–Š×ùÿÿÿÿ
-i
-java:S1128"LRemove this unused import 'org.springframework.data.repository.query.Param'.(©”šô8æÁáù¸.

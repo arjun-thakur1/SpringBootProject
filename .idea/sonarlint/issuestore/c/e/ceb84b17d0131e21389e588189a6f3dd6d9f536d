@@ -1,28 +1,29 @@
 
-W	java:S125{"<This block of commented-out lines of code should be removed.(Ú¹Îa8è…›õ¹.
-R
-java:S1066"/Merge this if statement with the enclosing one.(¯±¬¿ûÿÿÿÿ8ÙÕ†õ¹.
-e
-java:S1948."HMake "departmentEntityListToResponseDeptList" transient or serializable.(Í±›²8„€–ø¹.
-]	java:S125U"<This block of commented-out lines of code should be removed.(Áƒ úÿÿÿÿ8ª€Àü¸.
-n
-java:S1128"LRemove this unused import 'org.springframework.cache.annotation.CacheEvict'.(½Á¨ˆøÿÿÿÿ8œÅø¹.
 V
-java:S1948&"4Make "departmentServices" transient or serializable.(¢·ö¤üÿÿÿÿ8„€–ø¹.
-j
-java:S1948,"HMake "companyEntityListToResponseCompanyList" transient or serializable.(ç¤‰øûÿÿÿÿ8„€–ø¹.
-X	java:S125w"<This block of commented-out lines of code should be removed.(ËïÕì8¾ìšõ¹.
-P
-java:S1948#"3Make "companyRepository" transient or serializable.(³§ß‡8„€–ø¹.
-m	java:S117^"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(§õë†8ÙÕ†õ¹.
+java:S1948""4Make "departmentServices" transient or serializable.(¢·ö¤üÿÿÿÿ8„€–ø¹.
 Q
-java:S1611f"/Remove the parentheses around the "d" parameter(ÄµÛÁúÿÿÿÿ8ÅäÅ©¹.
-l
-java:S1128"JRemove this unused import 'org.springframework.cache.annotation.CachePut'.(ıâ‰ şÿÿÿÿ8¦ë§÷¹.
-t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¼ú²Ëşÿÿÿÿ
+java:S1611f"/Remove the parentheses around the "d" parameter(ÄµÛÁúÿÿÿÿ8»ŒşÖº.
+e
+java:S1948*"HMake "departmentEntityListToResponseDeptList" transient or serializable.(Í±›²8„€–ø¹.
 X
-java:S1948)"6Make "departmentRepository" transient or serializable.(ßÆğıÿÿÿÿ8„€–ø¹.
+java:S1948%"6Make "departmentRepository" transient or serializable.(ßÆğıÿÿÿÿ8„€–ø¹.
 ^
-java:S1481˜";Remove this unused "responseDepartmentList" local variable.(‘ÑÄ°ıÿÿÿÿ8ÙÕ†õ¹.
+java:S1481™";Remove this unused "responseDepartmentList" local variable.(‘ÑÄ°ıÿÿÿÿ8»ŒşÖº.
+P
+java:S1948"3Make "companyRepository" transient or serializable.(³§ß‡8„€–ø¹.
+j
+java:S1948("HMake "companyEntityListToResponseCompanyList" transient or serializable.(ç¤‰øûÿÿÿÿ8„€–ø¹.
 K
-java:S19481")Make "caching" transient or serializable.(²¨äöşÿÿÿÿ8èÖ×ú¹.
+java:S1948-")Make "caching" transient or serializable.(²¨äöşÿÿÿÿ8èÖ×ú¹.
+X	java:S125w"<This block of commented-out lines of code should be removed.(ËïÕì8»ŒşÖº.
+X	java:S125d"<This block of commented-out lines of code should be removed.(ßÜÙ©8È”€×º.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(Ã—Ñúøÿÿÿÿ8é‘˜×º.
+W	java:S125{"<This block of commented-out lines of code should be removed.(Ú¹Îa8»ŒşÖº.
+Y	java:S125‡"<This block of commented-out lines of code should be removed.(„­ÍÙ8ó©†×º.
+]	java:S125R"<This block of commented-out lines of code should be removed.(Áƒ úÿÿÿÿ8ª€Àü¸.
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¼ú²Ëşÿÿÿÿ
+m	java:S117^"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(§õë†8»ŒşÖº.
+X	java:S125T"<This block of commented-out lines of code should be removed.(¨æ§®8ÏıÖº.
+R
+java:S1066"/Merge this if statement with the enclosing one.(¯±¬¿ûÿÿÿÿ8»ŒşÖº.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(µ±§©üÿÿÿÿ8é‘˜×º.

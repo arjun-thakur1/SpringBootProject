@@ -1,12 +1,12 @@
 
-
-java:S1130`"lRemove the declaration of thrown exception 'java.lang.Exception', as it cannot be thrown from method's body.(ÿË¿µüÿÿÿÿ8ÇàÊª¹.
 t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¼ú²Ëşÿÿÿÿ
+t
+java:S2293)"YReplace the type specification in this constructor call with the diamond operator ("<>").(ì ¼üÿÿÿÿ
 E
 java:S1611*"/Remove the parentheses around the "l" parameter(§‚àÌ
 j
 java:S1128"MRemove this unused import 'Work1.Project1.Package.exception.CustomException'.(‰œİŸ8ÿš†÷¹.
 Q
 java:S1611i"/Remove the parentheses around the "e" parameter(‘áÿ›ûÿÿÿÿ8ÿš†÷¹.
-t
-java:S2293)"YReplace the type specification in this constructor call with the diamond operator ("<>").(ì ¼üÿÿÿÿ
+
+java:S1130`"lRemove the declaration of thrown exception 'java.lang.Exception', as it cannot be thrown from method's body.(ÿË¿µüÿÿÿÿ8ÇàÊª¹.
