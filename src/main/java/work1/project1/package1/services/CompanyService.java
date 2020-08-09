@@ -1,20 +1,23 @@
 package work1.project1.package1.services;
 
-import work1.project1.package1.dto.request.UpdateSalaryRequestDto;
-import work1.project1.package1.dto.response.EmployeeCompleteResponseDto;
-import work1.project1.package1.dto.response.GetCompanyResponseDto;
+import org.modelmapper.ModelMapper;
+import work1.project1.package1.dto.response.CompanyDeleteResponse;
+import work1.project1.package1.dto.response.CompanyResponse;
+import work1.project1.package1.dto.response.EmployeeCompleteResponse;
 import work1.project1.package1.dto.response.Response;
+import work1.project1.package1.entity.CompanyDepartmentMappingEntity;
 import work1.project1.package1.entity.CompanyEntity;
-import work1.project1.package1.entity.DepartmentEntity;
-import work1.project1.package1.exception.CustomException;
 
+import work1.project1.package1.entity.EmployeeEntity;
 import work1.project1.package1.mapper.MyMapper;
+import work1.project1.package1.repository.CompanyDepartmentMappingRepository;
 import work1.project1.package1.repository.DepartmentRepository;
-import work1.project1.package1.dto.request.CompanyAddRequestDto;
+import work1.project1.package1.dto.request.CompanyAddRequest;
 import work1.project1.package1.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -39,166 +42,128 @@ public class CompanyService {
    private EmployeeService employeeService;
 
     @Autowired
-    MyMapper myMapper;
+    MyMapper myMapper; //................................................................remove
 
     @Autowired
-    GetCompanyResponseDto responseGetCompanyDto;
+    ModelMapper modelMapper;
 
+    @Autowired
+    CompanyDepartmentMappingService companyDepartmentMappingService;
+
+   @Autowired
+    CompanyDepartmentMappingRepository mappingRepository;
 
     @Autowired
     Caching caching;
 
-    public Object getAll() throws CustomException {
+    public Object getAll()  {
        List<CompanyEntity>companyEntityList= companyRepository.findAllByIsActive(true);
        if(!companyEntityList.isEmpty()) {
-           List<GetCompanyResponseDto> responseCompanyList = responseGetCompanyDto.convertList(companyEntityList);
-           return responseCompanyList;
+           List<CompanyResponse> companyResponseList=new ArrayList<>();
+           companyEntityList.forEach((c)->{
+               companyResponseList.add(modelMapper.map(c,CompanyResponse.class));
+           });
+           return  companyResponseList;
        }
-       throw new CustomException(NOT_PRESENT);
+        return new Response(404,NOT_PRESENT);
     }
 
-    public Object getCompanyById(Long id) throws CustomException {
+    public Object getCompanyById(Long id) {
         CompanyEntity companyEntity= companyRepository.findByIdAndIsActive(id, true);
         if(companyEntity!=null) {
-            return  responseGetCompanyDto.convert(companyEntity);
+            return      modelMapper.map(companyEntity,CompanyResponse.class);//responseGetCompanyDto.convert(companyEntity);
         }
-        throw   new CustomException();
+        return new Response(404,NOT_PRESENT);
     }
 
 
-    public Object addCompanyDetail(CompanyAddRequestDto companyDto) {
-        String companyName= companyDto.getCompanyName().toLowerCase();
-        String ceoName=null;
-       if(companyDto.getCeoName()!=null) {
-          ceoName=companyDto.getCeoName().toLowerCase();
-       }
-
+    public Object addCompanyDetail(CompanyAddRequest companyAddRequest) {
+        String companyName= companyAddRequest.getCompanyName().toLowerCase();
+        String ceoName=companyAddRequest.getCeoName();     //=null; by default already build null
+        if(companyAddRequest.getCeoName()!=null)
+        {
+           ceoName=companyAddRequest.getCeoName().toLowerCase();
+        }
         if(companyRepository.existsByCompanyName(companyName)) //company name is unique
-          {
-               //company name unique so in lower-case
+        {    //company name unique so in lower-case
            CompanyEntity companyEntity=   companyRepository.findByCompanyName(companyName);
            if(companyEntity.getIsActive())
-               return   new Response(404, DUPLICATE_NAME_ERROR);
+               return new Response(409, DUPLICATE_NAME_ERROR);
            companyEntity.setActive(true);
            companyRepository.save(companyEntity);
-           return    myMapper.convert(companyEntity,ADD_SUCCESS);
-          }
-        else {
+           return    modelMapper.map(companyEntity, CompanyResponse.class);
+        }
+        else
+        {
            CompanyEntity companyEntity=new CompanyEntity(companyName,ceoName,-1,-1,true);
-               this.companyRepository.save(companyEntity);
-               return     myMapper.convert(companyEntity,ADD_SUCCESS);
+           this.companyRepository.save(companyEntity);
+           return modelMapper.map(companyEntity, CompanyResponse.class);
         }
     }
 
+    public Object deleteCompanyDetails(Long companyId)  {
+        CompanyEntity companyEntity=companyRepository.findByIdAndIsActive(companyId,true);
+        if(companyEntity!=null) {
+            companyEntity.setActive(false);
+            companyRepository.save(companyEntity);
+            // caching.deleteCompany(company_id);
+            List<CompanyDepartmentMappingEntity> companyDepartmentMappingEntityList=mappingRepository.
+                    findAllByCompanyIdAndIsActive(companyId,true);
+            companyDepartmentMappingEntityList.forEach((d)->{
+                    departmentService.deleteDepartmentDetails(companyId,d.getDepartmentId());
+
+            });
+            return  new CompanyDeleteResponse((long) 200,DELETE_SUCCESS);
+        }
+       return new Response(409,NOT_PRESENT);
+    }
+
+    public Object updateDetails(long  companyId, String company, String ceo){
+        String companyName=null,ceoName=null;
+        if(company!=null)
+            companyName=company.toLowerCase();
+        if(ceo!=null)
+            ceoName=ceo.toLowerCase();
+        Optional<CompanyEntity> fetchedCompanyEntity= Optional.ofNullable(companyRepository.findByIdAndIsActive(companyId, true));
+        if(fetchedCompanyEntity.isPresent()) {
+            CompanyEntity companyEntity= fetchedCompanyEntity.get();
+            if(companyName!=null && !companyName.equals(companyEntity.getCompanyName()))//check for unique company name , if not same as present means want to update
+            {
+                if(companyRepository.existsByCompanyName(companyName))
+                    return new Response(409,DUPLICATE_NAME_ERROR);
+                companyEntity.setCompanyName(companyName);
+            }
+            if (ceoName!=null) {
+                companyEntity.setCeoName(ceoName);
+            }    //   caching.update(companyId,updateCompanyEntity);
+            companyRepository.save(companyEntity);
+            return   new CompanyResponse(companyId,companyEntity.getCompanyName(),companyEntity.getCeoName(),UPDATE_SUCCESS) ;//new Response(500 , Update_Success);
+        }
+        return new Response(404,FAILED);
+    }
 
    // @Cacheable(value = "company_cache",key="#id")
 
 
 
-    public Object deleteCompanyDetails(Long companyId) throws CustomException {
-           CompanyEntity companyEntity=companyRepository.findByIdAndIsActive(companyId,true);
-           if(companyEntity!=null) {
-               companyEntity.setActive(false);
-               companyRepository.save(companyEntity);
-               // caching.deleteCompany(company_id);
-               List<DepartmentEntity> departmentEntityList=departmentRepository.findAllByCompanyId(companyId);
-               departmentEntityList.forEach((d)->{
-                           try {
-                               departmentService.deleteDepartmentDetails(d.getId());
-                           } catch (Exception e) {
-                               e.printStackTrace();
-                           }
-                       });
-                return  myMapper.convert(companyEntity,DELETE_SUCCESS);
-                     }
-                throw new CustomException(DELETE_FAILED);
-    }
 
-    public Object updateDetails(long  companyId, String company, String ceo)throws CustomException{
-        String companyName=null,ceoName=null;
-        if(company!=null)
-        companyName=company.toLowerCase();
-        if(ceo!=null)
-        ceoName=ceo.toLowerCase();
 
-        CompanyEntity updateCompanyEntity =new CompanyEntity(companyId,companyName,ceoName,-1,-1,true);
-        // long companyId=updateCompanyEntity.getCompanyId();
-        Optional<CompanyEntity> companyEntity= Optional.ofNullable(companyRepository.findByIdAndIsActive(companyId, true));
-        if(companyEntity.isPresent()) {
-            CompanyEntity companyEntity1= companyEntity.get();
-         //   String companyName=updateCompanyEntity.getCompanyName();
-            if (companyName==null ){
-                updateCompanyEntity.setCompanyName(companyEntity1.getCompanyName());
-            }
-            else if(!companyName.equals(companyEntity1.getCompanyName()))//check for unique company name , if not same as present means want to update
-            {
-                if(companyRepository.existsByCompanyName(companyName))
-                    throw new CustomException(DUPLICATE_NAME_ERROR);
-            }                  //companyEntity.setCeoName(Optional.ofNullable(updateCompanyEntity.getCeoName()).orElseGet(companyEntity.getCeoName())
-            if (ceoName==null) {
-                updateCompanyEntity.setCeoName(companyEntity1.getCeoName());
-            }
-         //   caching.update(companyId,updateCompanyEntity);
-            companyRepository.save(updateCompanyEntity);
-           return   myMapper.convert(updateCompanyEntity,UPDATE_SUCCESS) ;//new Response(500 , Update_Success);
-        }
-        throw  new CustomException(FAILED);
-    }
 
     public Object getallEmployeesOfCompany(Long companyId) {
-        List<DepartmentEntity>departmentEntityList= departmentRepository.findAllByCompanyIdAndIsActive(companyId,true);
-        if(departmentEntityList.isEmpty())
-        {
-            return new Response(200,DEPARTMENT_NOT_PRESENT);
-        }
-        HashMap<Long,List<EmployeeCompleteResponseDto>> deptIdToEmpMapp=new HashMap<>();
-        departmentEntityList.forEach((d)->{
-            List<EmployeeCompleteResponseDto> employeeCompleteDtoList=departmentService.getAllEmployeeOfDepartment(d.getId());
-            deptIdToEmpMapp.put(d.getId(),employeeCompleteDtoList);
+        List<CompanyDepartmentMappingEntity> cdMappingEntity=companyDepartmentMappingService.getAllDepartmentOfCompany
+                (companyId);
+        if(cdMappingEntity==null )
+            return new Response(404,FAILED);
+        if( cdMappingEntity.isEmpty())
+            return new Response(200,NOT_PRESENT);
+        HashMap<Long,List<EmployeeCompleteResponse>> mapp= new HashMap<>();
+        cdMappingEntity.forEach(d->{
+          List<EmployeeCompleteResponse> employeeEntityList =departmentService.getAllEmployeeOfDepartment(d.getCompanyId(),d.getDepartmentId());
+          mapp.put(d.getDepartmentId(),employeeEntityList);
         });
-        return deptIdToEmpMapp;
+       return mapp;
     }
-
-    public Object updateSalary(UpdateSalaryRequestDto requestSalaryDto) {
-        Long companyId=requestSalaryDto.getCompanyId();
-        Long departmentId=requestSalaryDto.getDepartmentId();
-        Long employeeId=requestSalaryDto.getEmployeeId();
-        Long salary_increment=requestSalaryDto.getSalary();
-        boolean flag=requestSalaryDto.isFlag();
-
-        if(companyId!=-1)
-        {  //update salary for all employees of company
-           if( updateCompanySalary(companyId,salary_increment,flag))
-               return new Response(200,UPDATE_SUCCESS);
-           else
-               return new Response(400,FAILED);
-        }
-        else if(departmentId!=-1)
-        {
-            if(departmentService.updateDepartmentSalary(departmentId,salary_increment,flag))
-                return new Response(200,UPDATE_SUCCESS);
-            else
-                return new Response(400,FAILED);
-        }
-        else if(employeeId!=-1)
-        {
-             if(employeeService.updateEmployeeSalary(employeeId,salary_increment,flag))
-                 return new Response(200,UPDATE_SUCCESS);
-             else
-                 return new Response(400,FAILED);
-        }
-        return new Response(400,FAILED);
-    }
-
-    public boolean updateCompanySalary(Long companyId,Long salary_increment,boolean flag){
-        if(!companyRepository.existsByIdAndIsActive(companyId,true))
-            return false;
-        List<DepartmentEntity>departmentEntityList=departmentRepository.findAllByCompanyIdAndIsActive(companyId,true);
-        departmentEntityList.forEach((d)->{
-            departmentService.updateDepartmentSalary(d.getId(),salary_increment,flag);
-        });
-        return true;
-    }
+/*
 
 /*
     public Object getCompanyCompleteDetails(Long companyId){
@@ -210,7 +175,7 @@ public class CompanyService {
                  return new Response(204, Not_Dept_Present);
               }
               else {
-                 List<DepartmentResponseDto>responseDepartmentList= new ArrayList<>();
+                 List<DepartmentCompanyResponse>responseDepartmentList= new ArrayList<>();
                  return departmentEntityListToResponseDeptList.convert(departmentEntityList);
               }
       }

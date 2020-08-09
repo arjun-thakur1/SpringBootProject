@@ -1,19 +1,14 @@
 package work1.project1.package1.services;
 
-import work1.project1.package1.dto.request.EmployeeAddRequestDto;
-import work1.project1.package1.dto.response.GetDepartmentResponseDto;
-import work1.project1.package1.dto.response.GetEmployeeResponseDto;
-import work1.project1.package1.entity.*;
-import work1.project1.package1.mapper.MyMapper;
+import work1.project1.package1.entity.CompanyDepartmentMappingEntity;
+import work1.project1.package1.entity.EmployeeMappingEntity;
 import work1.project1.package1.repository.*;
-import work1.project1.package1.dto.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-
-import static work1.project1.package1.constants.ApplicationConstants.*;
+import java.util.Optional;
 
 @Service
 @Component
@@ -21,38 +16,72 @@ import static work1.project1.package1.constants.ApplicationConstants.*;
 public class EmployeeMappingService {
 
     @Autowired
-    private DepartmentEmployeeMappingRepository employeeMappingRepository;
-
+    EmployeeMappingRepository employeeMappingRepository;
     @Autowired
-    CompanyRepository companyRepository;
+    CompanyDepartmentMappingRepository companyDepartmentMappingRepository;
 
-    @Autowired
-    DepartmentRepository departmentRepository;
 
-    @Autowired
-    UserRepository userRepository;
 
-    @Autowired
-    EmployeeRepository employeeRepository;
+    public void add(Long mappingId, Long employeeId) {
+        EmployeeMappingEntity employeeMapping=new EmployeeMappingEntity(mappingId,employeeId,-1,-1,true);
+        employeeMappingRepository.save(employeeMapping);
+    }
 
-    @Autowired
-    GetDepartmentResponseDto responseGetDepartmentDto;
-    @Autowired
-    MyMapper myMapper;
+    public CompanyDepartmentMappingEntity getIds(Long employeeId) {
+        EmployeeMappingEntity employeeMapping= employeeMappingRepository.findByEmployeeIdAndIsActive(employeeId,true);
 
-    @Autowired
-    GetEmployeeResponseDto responseGetEmployeeDto;
+        if(employeeMapping!=null)
+        {
+           return companyDepartmentMappingRepository.findByIdAndIsActive(employeeMapping.getMappingId(),true);
+        }
+        return null;
+    }
 
+    public boolean updateDetails(Long companyId, Long departmentId, Long employeeId) {
+        if(companyId==-1) //only want to change department within a company
+        {
+            EmployeeMappingEntity activeEmployeeMappingEntity= employeeMappingRepository.findByEmployeeIdAndIsActive(employeeId,true);
+            if(activeEmployeeMappingEntity==null) {
+                return false;
+            }
+               Optional<CompanyDepartmentMappingEntity> fetchedEntity=companyDepartmentMappingRepository.findById(activeEmployeeMappingEntity.getMappingId());//mapping id is PK in ComapnyDept_repo
+               CompanyDepartmentMappingEntity entity=fetchedEntity.get();
+               companyId=entity.getCompanyId(); //finds companyID for given dept
+        }
+       CompanyDepartmentMappingEntity companyDepartmentMappingEntity= companyDepartmentMappingRepository.
+               findByCompanyIdAndDepartmentIdAndIsActive(companyId,departmentId,true);
+        if(companyDepartmentMappingEntity==null)
+            return false;
+        Long companyDepartmentMappingId=companyDepartmentMappingEntity.getId();
+        EmployeeMappingEntity activeEmployeeMappingEntity= employeeMappingRepository.findByEmployeeIdAndIsActive(employeeId,true);
+        if(activeEmployeeMappingEntity!=null)
+        {
+            activeEmployeeMappingEntity.setActive(false);
+            employeeMappingRepository.save(activeEmployeeMappingEntity);
+        }
+         EmployeeMappingEntity employeeMappingEntity=employeeMappingRepository.findByEmployeeIdAndMappingId(employeeId,
+                companyDepartmentMappingId);
+        if(employeeMappingEntity!=null) //want to add in same dept
+        {
+            employeeMappingEntity.setActive(true);
+            employeeMappingRepository.save(employeeMappingEntity);
+            return true;
+        }
+        EmployeeMappingEntity newEmployeeMappingEntity=new EmployeeMappingEntity(companyDepartmentMappingId,employeeId,-1,-1,true);
+        employeeMappingRepository.save(newEmployeeMappingEntity);
+        return true;
+    }
+/*
   //  @Cacheable(value = "employee_cache",key="#employeePK")
     public Object getEmployeeDetails(Long employeeId) {
-        DepartmentEmployeeMapping employeeEntity= employeeMappingRepository.findByIdAndIsActive(employeeId, true);    //HttpStatus.OK
+        EmployeeMappingEntity employeeEntity= employeeMappingRepository.findByIdAndIsActive(employeeId, true);    //HttpStatus.OK
         if(employeeEntity!=null){
         return responseGetEmployeeDto.convert(employeeEntity,SUCCESS);
         }
         return new Response(204,NOT_PRESENT);
     }
 
-public boolean addEmployee(EmployeeAddRequestDto addRequestDto,Long employeeId) {
+public boolean addEmployee(EmployeeAddRequest addRequestDto,Long employeeId) {
         Long departmentId=addRequestDto.getDepartmentId();
         Long managerId=addRequestDto.getManagerId();
         Long salary=addRequestDto.getSalary();
@@ -61,7 +90,7 @@ public boolean addEmployee(EmployeeAddRequestDto addRequestDto,Long employeeId) 
         if (departmentId!=-1 && !departmentRepository.existsByIdAndIsActive(departmentId,true) ){
               return false;
         }
-        DepartmentEmployeeMapping employeeEntity=new DepartmentEmployeeMapping(departmentId,employeeId,managerId,designation,-1
+        EmployeeMappingEntity employeeEntity=new EmployeeMappingEntity(departmentId,employeeId,managerId,designation,-1
                 ,-1,true);
 
         employeeMappingRepository.save(employeeEntity);
@@ -69,7 +98,7 @@ public boolean addEmployee(EmployeeAddRequestDto addRequestDto,Long employeeId) 
     }
     //  @CacheEvict(value = "employee_cache",key="#employeePK", allEntries = true)
     public Object deleteEmployee(Long employeeId) throws Exception {
-            DepartmentEmployeeMapping employeeEntity= employeeMappingRepository.findByIdAndIsActive(employeeId, true);
+            EmployeeMappingEntity employeeEntity= employeeMappingRepository.findByIdAndIsActive(employeeId, true);
             if(employeeEntity!=null) {
                 employeeEntity.setActive(false);
                 employeeMappingRepository.save(employeeEntity);
@@ -86,7 +115,7 @@ public boolean addEmployee(EmployeeAddRequestDto addRequestDto,Long employeeId) 
             return false;
             //emp want to update in same dept
             if(employeeMappingRepository.existsByDepartmentIdAndEmployeeId(departmentId,employeeId)) {
-                DepartmentEmployeeMapping employeeMapping = employeeMappingRepository.findByDepartmentIdAndEmployeeId(departmentId
+                EmployeeMappingEntity employeeMapping = employeeMappingRepository.findByDepartmentIdAndEmployeeId(departmentId
                         , employeeId);
             employeeMapping.setActive(true);
             if(!designation.equals("NOT_CHANGE"))
@@ -99,7 +128,7 @@ public boolean addEmployee(EmployeeAddRequestDto addRequestDto,Long employeeId) 
             //if dept_id not given but already part of dept ,then update
             if(employeeMappingRepository.existsByEmployeeIdAndIsActive(employeeId,true))
             {
-                DepartmentEmployeeMapping employeeMapping = employeeMappingRepository.findByEmployeeIdAndIsActive
+                EmployeeMappingEntity employeeMapping = employeeMappingRepository.findByEmployeeIdAndIsActive
                         (employeeId,true);
                 if(employeeMapping.getDepartmentId()!=departmentId)
                     return  false;//emp at a time cant be part of two dept
@@ -112,12 +141,12 @@ public boolean addEmployee(EmployeeAddRequestDto addRequestDto,Long employeeId) 
                 return true;
             }
                 //if new entry
-            DepartmentEmployeeMapping employeeMapping=new DepartmentEmployeeMapping(departmentId,employeeId,managerId,
+            EmployeeMappingEntity employeeMapping=new EmployeeMappingEntity(departmentId,employeeId,managerId,
                     designation,-1,-1,true);
             employeeMappingRepository.save(employeeMapping);
         }
         //if dept_id not given then check for emp ,present in mapping table or not
-        DepartmentEmployeeMapping fetchedEmployeeEntity =employeeMappingRepository.findByEmployeeIdAndIsActive
+        EmployeeMappingEntity fetchedEmployeeEntity =employeeMappingRepository.findByEmployeeIdAndIsActive
                 (employeeId,true);
         if(fetchedEmployeeEntity==null) {
             return false;

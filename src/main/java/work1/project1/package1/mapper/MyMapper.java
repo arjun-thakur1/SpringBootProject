@@ -1,47 +1,56 @@
 package work1.project1.package1.mapper;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import work1.project1.package1.dto.response.*;
-import work1.project1.package1.entity.CompanyEntity;
-import work1.project1.package1.entity.DepartmentEmployeeMapping;
-import work1.project1.package1.entity.DepartmentEntity;
+import work1.project1.package1.dto.request.EmployeeAddRequest;
+import work1.project1.package1.dto.response.EmployeeAddResponseDto;
 import work1.project1.package1.entity.EmployeeEntity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static work1.project1.package1.constants.ApplicationConstants.SUCCESS;
-
 @Service
-public class MyMapper {
+public class MyMapper extends ModelMapper {
 
-    public CompanyResponseDto convert(CompanyEntity companyEntity, String message)
+
+    PropertyMap<EmployeeAddRequest,EmployeeEntity > clientPropertyMap = new PropertyMap< EmployeeAddRequest,EmployeeEntity >() {
+        @Override
+        protected void configure() {
+            skip(source.getCompanyId());
+            skip(source.getManagerId());
+            skip(source.getDepartmentId());
+            skip(destination.getId());
+        }
+    };
+
+
+/*
+    public CompanyResponse convert(CompanyEntity companyEntity, String message)
         {
-            CompanyResponseDto responseCompanyDto=new CompanyResponseDto();
+            CompanyResponse responseCompanyDto=new CompanyResponse();
 
             responseCompanyDto.setId(companyEntity.getId());
             responseCompanyDto.setCompanyName(companyEntity.getCompanyName());
             responseCompanyDto.setCeoName(companyEntity.getCeoName());
-            responseCompanyDto.setStatus((long) 200);
+        //    responseCompanyDto.setStatus((long) 200);
             responseCompanyDto.setMessage(message);
             return responseCompanyDto;
         }
 
-    public DepartmentResponseDto convert(DepartmentEntity departmentEntity, String message)
+    public DepartmentCompanyResponse convert(DepartmentEntity departmentEntity, String message)
     {
-        DepartmentResponseDto responseDepartmentDto=new DepartmentResponseDto();
+        DepartmentCompanyResponse responseDepartmentDto=new DepartmentCompanyResponse();
 
         responseDepartmentDto.setId(departmentEntity.getId());
-        responseDepartmentDto.setCompanyId(departmentEntity.getCompanyId());
+      //  responseDepartmentDto.setCompanyId(departmentEntity.getCompanyId());
         responseDepartmentDto.setDepartmentName(departmentEntity.getDepartmentName());
         responseDepartmentDto.setStatus((long) 200);
         responseDepartmentDto.setMessage(message);
         return responseDepartmentDto;
     }
 
-    public List<DepartmentResponseDto> convert(List<DepartmentEntity> departmentEntityList, String message) {
+    public List<DepartmentCompanyResponse> convert(List<DepartmentEntity> departmentEntityList, String message) {
 
-        List<DepartmentResponseDto> responseDepartmentDtoList=new ArrayList<>();
+        List<DepartmentCompanyResponse> responseDepartmentDtoList=new ArrayList<>();
         departmentEntityList.forEach((d)->
                 responseDepartmentDtoList.add(convert(d,message))
         );
@@ -63,8 +72,8 @@ public class MyMapper {
         return responseEmployeeDto;
     }
 
-    public EmployeeCompleteResponseDto convert(EmployeeEntity employeeEntity1, DepartmentEmployeeMapping d) {
-        EmployeeCompleteResponseDto completeDto=new EmployeeCompleteResponseDto();
+    public EmployeeCompleteResponse convert(EmployeeEntity employeeEntity1, EmployeeMappingEntity d) {
+        EmployeeCompleteResponse completeDto=new EmployeeCompleteResponse();
 
         completeDto.setId(employeeEntity1.getId());
         completeDto.setName(employeeEntity1.getName());
@@ -77,7 +86,7 @@ public class MyMapper {
 
         return completeDto;
     }
-
+*/
     /* created for delete emp response but not need
     public EmployeeResponseDto convert(EmployeeEntity employeeEntity,long status,String message)
     {

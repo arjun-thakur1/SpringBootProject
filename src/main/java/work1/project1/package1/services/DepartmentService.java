@@ -1,18 +1,15 @@
 package work1.project1.package1.services;
 
-import work1.project1.package1.dto.request.DepartmentAddRequestDto;
+import org.modelmapper.ModelMapper;
+import work1.project1.package1.dto.request.DepartmentAddRequest;
 import work1.project1.package1.dto.request.DepartmentUpdateRequestDto;
-import work1.project1.package1.dto.response.EmployeeCompleteResponseDto;
-import work1.project1.package1.dto.response.GetDepartmentResponseDto;
-import work1.project1.package1.dto.response.Response;
+import work1.project1.package1.dto.response.*;
 import work1.project1.package1.entity.*;
+import work1.project1.package1.exception.CustomException;
 import work1.project1.package1.mapper.MyMapper;
-import work1.project1.package1.repository.CompanyRepository;
-import work1.project1.package1.repository.DepartmentRepository;
-import work1.project1.package1.repository.DepartmentEmployeeMappingRepository;
+import work1.project1.package1.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import work1.project1.package1.repository.EmployeeRepository;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -30,10 +27,21 @@ public class DepartmentService {
     @Autowired
     private CompanyRepository companyRepository;
     @Autowired
-    private DepartmentEmployeeMappingRepository departmentEmployeeMappingRepository;
+    private EmployeeMappingRepository departmentEmployeeMappingRepository;
 
     @Autowired
+    CompanyDepartmentMappingRepository companyDepartmentMappingRepository;
+    @Autowired
+    EmployeeMappingRepository employeeMappingRepository;
+    @Autowired
+    EmployeeService employeeService;
+    @Autowired
     MyMapper myMapper;
+    @Autowired
+    ModelMapper modelMapper;
+    @Autowired
+    CompanyDepartmentMappingService mappingService;
+
     @Autowired
     GetDepartmentResponseDto responseGetDepartmentDto;
 
@@ -43,128 +51,174 @@ public class DepartmentService {
     EmployeeMappingService employeeMappingService;
     @Autowired
     EmployeeRepository employeeRepository;
+
     @Autowired
-    EmployeeService employeeService;
+    CompanyDepartmentMappingRepository mappingRepository;
 
     public Object getAll(Long companyId) {
-        CompanyEntity companyEntity= companyRepository.findByIdAndIsActive(companyId,true);
-        if(companyEntity!=null) {
-         //  List<DepartmentResponseDto> departmentDtoArrayList = new ArrayList<DepartmentResponseDto>();
-           List<DepartmentEntity>departmentEntityList= departmentRepository.findAllByCompanyIdAndIsActive(companyId,true);
-           if(departmentEntityList.isEmpty())
+        boolean isPresent= companyRepository.existsByIdAndIsActive(companyId,true);
+        if(isPresent) {
+          List<CompanyDepartmentMappingEntity> mappingEntityList= mappingRepository.findAllByCompanyIdAndIsActive(companyId,true);
+           if(mappingEntityList.isEmpty())
                return new Response(200,DEPARTMENT_NOT_PRESENT);
-           return myMapper.convert(departmentEntityList,SUCCESS);
+           List<DepartmentResponse> getResponseList=new ArrayList<>();
+           mappingEntityList.forEach(mapp->{
+               try {
+                   getResponseList.add(getDepartmentDetail(mapp.getDepartmentId()));
+               } catch (CustomException e) {
+                   e.printStackTrace();
+               }
+           });
+           return getResponseList;
         }
-        return new Response(400,FAILED);
+        return new Response(409,DEPARTMENT_NOT_PRESENT);
     }
 
 
-    public Object addDepartment(DepartmentAddRequestDto requestDepartment) {
+    public Object addDepartment(DepartmentAddRequest requestDepartment) {
         Long companyId=requestDepartment.getCompanyId();
-        boolean companyPresent=companyRepository.existsByIdAndIsActive(companyId,true);
-        if(!companyPresent)
-             return new Response(404,ADD_FAILED);
-       // String departmentName=null;
-        //if(requestDepartment.getDepartmentName()!=null)
-        String departmentName=requestDepartment.getDepartmentName().toLowerCase();
-        if(departmentRepository.existsByCompanyIdAndDepartmentName(companyId ,departmentName))
-        {
-            DepartmentEntity departmentEntity= departmentRepository.findByCompanyIdAndDepartmentName(companyId,departmentName);
-             if(departmentEntity.getIsActive())
-                 return new Response(404,ADD_FAILED);
-             departmentEntity.setActive(true);
-             departmentRepository.save(departmentEntity);
-             return  myMapper.convert(departmentEntity,ADD_SUCCESS);
+        Long departmentId=requestDepartment.getDepartmentId();
+        String departmentName=requestDepartment.getDepartmentName();
+        if(departmentId==-1 && departmentName==null)
+            return new Response(400,FAILED);
+        if(companyId==-1) {
+            if(departmentName==null)
+                return new Response(400,FAILED);
+            departmentName=departmentName.toLowerCase();
+            if(departmentRepository.existsByDepartmentName(departmentName)) {
+                DepartmentEntity departmentEntity=departmentRepository.findByDepartmentName(departmentName);
+                return new DepartmentResponse(departmentEntity.getId(),departmentName,ALREADY_PRESENT);
+            }
+            DepartmentEntity departmentEntity=new DepartmentEntity(departmentName.toLowerCase(),-1,-1,true);
+            departmentRepository.save(departmentEntity);
+            return modelMapper.map(departmentEntity, DepartmentResponse.class);
         }
-           DepartmentEntity departmentEntity = new DepartmentEntity(departmentName,companyId,-1,-1,true);
-           this.departmentRepository.save(departmentEntity);
-           return  myMapper.convert(departmentEntity,ADD_SUCCESS);
+        boolean isCompanyPresent=companyRepository.existsByIdAndIsActive(companyId,true);
+
+        if( !isCompanyPresent ||(departmentId==-1 && departmentName==null )) {
+            return new Response(404, ADD_FAILED);
+        }
+       if(departmentId!=-1) {  //dept id given
+           Optional<DepartmentEntity> fetchedDepartmentEntity=departmentRepository.findById(departmentId);
+           if(fetchedDepartmentEntity.isPresent()) {
+               DepartmentEntity departmentEntity = fetchedDepartmentEntity.get();
+               if(mappingService.add(companyId , departmentId)) {
+                   return new DepartmentCompanyResponse(companyId, departmentId, departmentEntity.getDepartmentName(), SUCCESS);
+               }
+               return new DepartmentCompanyResponse(companyId,departmentEntity.getId(),departmentEntity.getDepartmentName(),ALREADY_PRESENT);
+           }
+           return new Response(404, ADD_FAILED);
+       }
+       else{   //companyId and departmentName given
+           Optional<DepartmentEntity>fetchedDepartmentEntity= Optional.ofNullable(departmentRepository.findByDepartmentName(departmentName));
+           departmentName=departmentName.toLowerCase();
+           if(fetchedDepartmentEntity.isPresent()){
+               DepartmentEntity departmentEntity=fetchedDepartmentEntity.get();
+               departmentId=departmentEntity.getId();
+               if(mappingService.add(companyId , departmentId)) {
+                   return new DepartmentCompanyResponse(companyId, departmentId, departmentEntity.getDepartmentName(), SUCCESS);
+               }
+               return new DepartmentCompanyResponse(companyId,departmentEntity.getId(),departmentName,ALREADY_PRESENT);
+           }
+           DepartmentEntity departmentEntity=new DepartmentEntity(departmentName,-1,-1,true);
+           departmentRepository.save(departmentEntity);
+           if(mappingService.add(companyId , departmentEntity.getId())) {
+               return new DepartmentCompanyResponse(companyId, departmentEntity.getId(), departmentName, SUCCESS);
+           }
+           return new Response(404, ADD_FAILED);
+       }
 }
 
 
 
-    public Object getDepartmentDetail(Long departmentId) {
-            Optional<DepartmentEntity> departmentEntity=departmentRepository.findByIdAndIsActive(departmentId,true);
-            if(!departmentEntity.isPresent())
-               return  new Response(404,FAILED) ;
+    public DepartmentResponse getDepartmentDetail(Long departmentId) throws CustomException {
+            Optional<DepartmentEntity> fetchedDepartmentEntity=departmentRepository.findById(departmentId);
+            if(!fetchedDepartmentEntity.isPresent())
+               throw new CustomException(FAILED);
             else
             {
-                DepartmentEntity departmentEntity1=departmentEntity.get();
-                return responseGetDepartmentDto.convert(departmentEntity1);
+                DepartmentEntity departmentEntity=fetchedDepartmentEntity.get();
+                return    modelMapper.map(departmentEntity, DepartmentResponse.class);//responseGetDepartmentDto.convert(departmentEntity1);
             }
    }
 
-    public Object deleteDepartmentDetails(Long departmentId) throws Exception{
-        Optional<DepartmentEntity> departmentEntity=departmentRepository.findByIdAndIsActive(departmentId,true);
-        if(departmentEntity.isPresent()) {
-            DepartmentEntity departmentEntity1 = departmentEntity.get();
-            departmentEntity1.setActive(false);
-            departmentRepository.save(departmentEntity1);
-          /*  List<EmployeeEntity> employeeEntityList=employeeRepository.findAllByEmployeePKCompanyIdAndEmployeePKDepartmentId
-                    (departmentPK.getCompanyId(),departmentPK.getDepartmentId());
-            employeeEntityList.forEach((e)->{
-                try {
-                    employeeServices.deleteEmployeeDetails(e.getEmployeePK().getCompanyId(),e.getEmployeePK().getDepartmentId(),
-                            e.employeePK.getEmployeeId());
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
-            });*/
-            return myMapper.convert(departmentEntity1,DELETE_SUCCESS);//new Response(200, Delete_Success);
-        }
-      return new Response(404, FAILED);
-}
+    public Object getDepartmentOfCompany(Long companyId, Long departmentId) {
+            Optional<DepartmentEntity> fetchedDepartmentEntity=departmentRepository.findById(departmentId);
+            if(fetchedDepartmentEntity.isPresent()){
+                if(mappingRepository.existsByCompanyIdAndDepartmentIdAndIsActive(companyId,departmentId,true))
+                 {
+                    DepartmentEntity departmentEntity=fetchedDepartmentEntity.get();
+                    return new DepartmentCompanyResponse(companyId,departmentId,departmentEntity.getDepartmentName(),SUCCESS);
+                 }
+                return new Response(404,NOT_PRESENT);
+            }
+            return new Response(404,NOT_PRESENT);
+    }
+
+
+
 
     public Object updateDetails(DepartmentUpdateRequestDto departmentRequestDto) {
-        Long departmentId=departmentRequestDto.getDepartmentId();
-        String departmentName=departmentRequestDto.getDepartmentName();
-        Long companyId=departmentRequestDto.getCompanyId();
-        if(departmentName!=null)
-            departmentName=departmentName.toLowerCase();
-        Optional<DepartmentEntity> fetchedDepartmentEntity=departmentRepository.findByIdAndIsActive(departmentId,true);
-        if(fetchedDepartmentEntity.isPresent())
-        {
-            DepartmentEntity departmentEntity=fetchedDepartmentEntity.get();
-            if(departmentName!=null)
-            {
-                departmentEntity.setDepartmentName(departmentName);
+            Long departmentId=departmentRequestDto.getDepartmentId();
+            Optional<DepartmentEntity> fetchedDepartmentEntity=departmentRepository.findById(departmentId);
+            if(fetchedDepartmentEntity.isPresent()){
+                DepartmentEntity departmentEntity=fetchedDepartmentEntity.get();
+                departmentEntity.setDepartmentName(departmentRequestDto.getDepartmentName());
+                departmentRepository.save(departmentEntity);
+                return modelMapper.map(departmentEntity,DepartmentResponse.class);
             }
-            if(companyId!=-1) {
-                if (!companyRepository.existsByIdAndIsActive(companyId, true))   //if transfer of department in another company,update
-                {
-                    return new Response(204, FAILED);
-                }
-                departmentEntity.setCompanyId(companyId);
-            }
-            departmentRepository.save(departmentEntity);
-            return    myMapper.convert(departmentEntity,UPDATE_SUCCESS);//new Response(200 , UPDATE_SUCCESS);
-        }
         return new Response(204 , FAILED);
     }
+
+
+    public Object deleteDepartmentDetails(Long companyId,Long departmentId) {
+        CompanyDepartmentMappingEntity companyDepartmentMappingEntity=companyDepartmentMappingRepository.
+             findByCompanyIdAndDepartmentIdAndIsActive(companyId,departmentId,true);
+     if(companyDepartmentMappingEntity==null)
+         return new Response(409,DEPARTMENT_NOT_PRESENT);
+
+     List<EmployeeMappingEntity> employeeMappingEntityList= employeeMappingRepository.findByMappingIdAndIsActive
+             (companyDepartmentMappingEntity.getId(),true);
+
+     employeeMappingEntityList.forEach(e->{
+         employeeService.deleteEmployee(e.getEmployeeId());
+     });
+     companyDepartmentMappingEntity.setActive(false);
+     companyDepartmentMappingRepository.save(companyDepartmentMappingEntity);
+     return  new DepartmentDeleteResponse(companyId,departmentId,DELETE_SUCCESS);
+}
+
+
+    public List<EmployeeCompleteResponse> getAllEmployeeOfDepartment(Long companyId,Long departmentId) {
+        CompanyDepartmentMappingEntity companyDepartmentMappingEntity=companyDepartmentMappingRepository.
+                findByCompanyIdAndDepartmentIdAndIsActive(companyId,departmentId,true);
+        if(companyDepartmentMappingEntity==null)
+            return null;
+
+        List<EmployeeMappingEntity> employeeMappingEntityList= employeeMappingRepository.findByMappingIdAndIsActive
+                (companyDepartmentMappingEntity.getId(),true);
+        List<EmployeeCompleteResponse> employeeCompleteResponseList=new ArrayList<>();
+        employeeMappingEntityList.forEach(e->{
+            Optional<EmployeeEntity> fetchedEmployeeEntity=employeeRepository.findById(e.getEmployeeId());
+            EmployeeEntity employeeEntity=fetchedEmployeeEntity.get();
+
+            EmployeeCompleteResponse completeResponseDto=new EmployeeCompleteResponse();
+            employeeCompleteResponseList.add(completeResponseDto.convert(employeeEntity,companyId,departmentId));
+        });
+        return employeeCompleteResponseList;
+
+    }
+
+/*
 
     public List<DepartmentEntity> getAllDepartmentsOfCompany(long companyId) {
         return departmentRepository.findAllByCompanyIdAndIsActive(companyId,true);
     }
 
-    public List<EmployeeCompleteResponseDto> getAllEmployeeOfDepartment(Long departmentId) {
-        List<DepartmentEmployeeMapping> departmentEmployeeMappingList=departmentEmployeeMappingRepository.
-                findAllByDepartmentIdAndIsActive(departmentId,true);
-        List<EmployeeCompleteResponseDto> employeeCompleteDto=new ArrayList<>();
-        departmentEmployeeMappingList.forEach((d)-> {
-                    Optional<EmployeeEntity> employeeEntity=employeeRepository.findById(d.getEmployeeId());
 
-                    if(employeeEntity.isPresent())
-                    {
-                        EmployeeEntity employeeEntity1=employeeEntity.get();
-                        employeeCompleteDto.add(myMapper.convert(employeeEntity1,d));
-                    }
-                }
-        );
-        return employeeCompleteDto;
-    }
 
     public boolean updateDepartmentSalary(Long departmentId, Long salary_increment, boolean flag) {
-        List<DepartmentEmployeeMapping> departmentEmployeeMappingList=new ArrayList<>();
+        List<EmployeeMappingEntity> departmentEmployeeMappingList=new ArrayList<>();
         if(!departmentRepository.existsByIdAndIsActive(departmentId,true))
             return false;
         departmentEmployeeMappingList=departmentEmployeeMappingRepository.findAllByDepartmentIdAndIsActive(departmentId,true);
@@ -174,4 +228,5 @@ public class DepartmentService {
         }));
         return true;
     }
+    */
 }

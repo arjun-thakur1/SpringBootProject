@@ -1,9 +1,9 @@
 package work1.project1.package1.controller;
 
-import work1.project1.package1.dto.request.CompanyUpdateRequestDto;
+import work1.project1.package1.dto.request.CompanyUpdateRequest;
 import work1.project1.package1.dto.request.UpdateSalaryRequestDto;
 import work1.project1.package1.exception.CustomException;
-import work1.project1.package1.dto.request.CompanyAddRequestDto;
+import work1.project1.package1.dto.request.CompanyAddRequest;
 import work1.project1.package1.services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,12 +34,12 @@ public class CompanyController {
     }
 
     @GetMapping(value="/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getCompanyDetailsById(@PathVariable("id") Long companyId) throws CustomException {
+    public Object getCompanyDetailsById(@Valid @PathVariable("id") Long companyId) throws CustomException {
        return  companyService.getCompanyById(companyId);
     }
 
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> addCompany( @Valid @RequestBody CompanyAddRequestDto companyDto ) {
+    public ResponseEntity<Object> addCompany( @Valid @RequestBody CompanyAddRequest companyDto ) {
         return new ResponseEntity<> (companyService.addCompanyDetail(companyDto), HttpStatus.OK);
     }
 
@@ -48,11 +48,11 @@ public class CompanyController {
         return companyService.deleteCompanyDetails(companyId);
     }
 
-     @PutMapping("")
-     public Object updateCompanyDetail(@Valid @RequestBody CompanyUpdateRequestDto companyUpdateRequestDto) throws CustomException {
+    @PutMapping("")
+    public Object updateCompanyDetail(@Valid @RequestBody CompanyUpdateRequest companyUpdateRequestDto) throws CustomException {
         return companyService.updateDetails(companyUpdateRequestDto.getId(),companyUpdateRequestDto.getCompanyName(),
                 companyUpdateRequestDto.getCeoName());
-     }
+    }
 
 
     //response of this api must be change....
@@ -61,10 +61,6 @@ public class CompanyController {
         return  companyService.getallEmployeesOfCompany(companyId);
     }
 
-    @PutMapping(value="/update-salary")
-    public Object updateSalary(@Valid @RequestBody UpdateSalaryRequestDto requestSalaryDto) {
-      return   companyService.updateSalary(requestSalaryDto);
-    }
 
 }
 

@@ -3,6 +3,7 @@ package work1.project1.package1.entity;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import work1.project1.package1.util.CommonFeilds;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
-public class CompanyEntity {
+public class CompanyEntity  {
 
     @Id
     @Column(name="id")
@@ -25,7 +26,16 @@ public class CompanyEntity {
     @Column(name="ceo_name")
     private String ceoName;
 
-    @Getter
+    @Getter @Setter
+    @Column(name="is_active")
+    private boolean isActive;
+
+    public boolean getIsActive()
+    {
+        return this.isActive;
+    }
+
+    @Getter @Setter
     @Column(name="created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -43,34 +53,28 @@ public class CompanyEntity {
     @Column(name="updated_by")
     private Long updatedBy;
 
-    @Getter @Setter
-    @Column(name="is_active")
-    private boolean isActive;
-
-    public boolean getIsActive()
-    {
-        return this.isActive;
-    }
-
     public CompanyEntity(String companyName, String ceoName, boolean isActive) {
+        super();
         this.companyName = companyName;
         this.ceoName = ceoName;
         this.isActive = isActive;
     }
 
     public CompanyEntity(Long companyId,String companyName,String  ceoName,long createdBy,long updatedBy, boolean isActive) {
+      //  super(createdBy,updatedBy);
         this.id=companyId;
         this.companyName = companyName;
         this.ceoName = ceoName;
+        this.isActive = isActive;
         this.createdBy=createdBy;
         this.updatedBy=updatedBy;
-        this.isActive = isActive;
     }
     public CompanyEntity(String companyName,String  ceoName,long createdBy,long updatedBy, boolean isActive) {
+      //  super();
         this.companyName = companyName;
         this.ceoName = ceoName;
+        this.isActive = isActive;
         this.createdBy=createdBy;
         this.updatedBy=updatedBy;
-        this.isActive = isActive;
     }
 }

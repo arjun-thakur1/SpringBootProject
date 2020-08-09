@@ -17,7 +17,7 @@ public class GetDepartmentResponseDto {
 
         GetDepartmentResponseDto responseGetDepartmentDto=new GetDepartmentResponseDto();
         responseGetDepartmentDto.setId(departmentEntity.getId());
-        responseGetDepartmentDto.setCompanyId(departmentEntity.getCompanyId());
+     //   responseGetDepartmentDto.setCompanyId(departmentEntity.getCompanyId());
         responseGetDepartmentDto.setDepartmentName(departmentEntity.getDepartmentName());
 
         return responseGetDepartmentDto;

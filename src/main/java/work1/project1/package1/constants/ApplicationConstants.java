@@ -17,13 +17,16 @@ public class ApplicationConstants {
     public static final String DEPARTMENT_NOT_PRESENT=" No Department Present!! ";
 
     public static final String DUPLICATE_ERROR=" Duplicate Error!! ";
-    public static final String DUPLICATE_NAME_ERROR="Error :: Company Name Already Present!!";
+    public static final String DUPLICATE_NAME_ERROR="Error :: Name Already Present!!";
 
     public static final String REQUEST="REQUEST";
     public static final String START_TIME="startTime";
     public static final String RESPONSE_TIME="RESPONSE";
 
     public static final String ALREADY_PRESENT=" Already Present!! ";
+    public static final String MANAGER="MANAGER";
+    public static final String _NONE="None";
 
+    public static final String PHONE="0000000000";
 
 }

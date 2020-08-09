@@ -47,9 +47,9 @@ public class ImplementInterceptor extends HandlerInterceptorAdapter {
         }
 
         long user_id = Long.parseLong(id);
-        Optional<Users> users=   usersService.get(user_id);
+        Optional<UserEntity> users=   usersService.get(user_id);
         if(users.isPresent()) {
-            Users savedUser = users.get();
+            UserEntity savedUser = users.get();
             if (!savedUser.get_password().equalsIgnoreCase(password)) {
                 throw new CustomException("Invalid Credential");
             }

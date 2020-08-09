@@ -1,6 +1,7 @@
 package work1.project1.package1;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.boot.SpringApplication;
 //import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,10 +29,6 @@ public class Project1Application {
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
-	@Bean
-	public ModelMapper modelMapper() {
-		ModelMapper modelMapper = new ModelMapper();
-		return modelMapper;
-	}
+
 
 }

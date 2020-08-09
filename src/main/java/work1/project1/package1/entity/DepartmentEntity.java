@@ -3,12 +3,10 @@ import lombok.*;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.context.annotation.Configuration;
+import work1.project1.package1.util.CommonFeilds;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Entity
@@ -16,9 +14,8 @@ import java.util.List;
 //@Configuration
 @AllArgsConstructor
 @NoArgsConstructor
-public class DepartmentEntity implements Serializable {
+public class DepartmentEntity extends CommonFeilds {
 
-    private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name="id")
@@ -29,11 +26,10 @@ public class DepartmentEntity implements Serializable {
     @Column(name="department_name")
     private String departmentName;
 
-    @Getter @Setter
-    @Column(name="company_id")
-    private Long  companyId;
+    @Getter @Setter @Column(name="is_active")
+    private boolean isActive;
 
-    @Getter
+    @Getter @Setter
     @Column(name="created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -51,30 +47,24 @@ public class DepartmentEntity implements Serializable {
     @Column(name="updated_by")
     private Long updatedBy;
 
-    @Getter @Setter @Column(name="is_active")
-    private boolean isActive;
-
-    @OneToMany(mappedBy = "departmentId",fetch = FetchType.LAZY)
-    private List<DepartmentEmployeeMapping> departmentEmployeeMappingList;
-
     public boolean getIsActive() {
 
         return this.isActive;
     }
-    public DepartmentEntity(String departmentName,Long companyId,long createdBy,long updatedBy, boolean isActive) {
+    public DepartmentEntity(String departmentName,long createdBy,long updatedBy, boolean isActive) {
+       // super(createdBy,updatedBy);
         this.departmentName=departmentName;
-        this.companyId=companyId;
+        this.isActive = isActive;
         this.createdBy=createdBy;
         this.updatedBy=updatedBy;
-        this.isActive = isActive;
     }
-    public DepartmentEntity(Long departmentId,String departmentName,Long companyId,long createdBy,long updatedBy,
+    public DepartmentEntity(Long departmentId,String departmentName,long createdBy,long updatedBy,
                             boolean isActive) {
+      //  super(createdBy,updatedBy);
         this.id=departmentId;
         this.departmentName=departmentName;
-        this.companyId=companyId;
+        this.isActive = isActive;
         this.createdBy=createdBy;
         this.updatedBy=updatedBy;
-        this.isActive = isActive;
     }
 }

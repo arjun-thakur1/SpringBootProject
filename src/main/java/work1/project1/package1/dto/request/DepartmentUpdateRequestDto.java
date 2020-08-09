@@ -13,9 +13,7 @@ public class DepartmentUpdateRequestDto {
     @NotNull
     @Getter @Setter private Long departmentId;
 
-    @Builder.Default
-    @Getter @Setter private String departmentName=null;
+    @NotNull
+    @Getter @Setter private String departmentName;
 
-    @Builder.Default
-    @Getter @Setter private Long companyId= Long.valueOf(-1);
 }

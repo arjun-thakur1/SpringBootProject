@@ -1,9 +1,6 @@
 package work1.project1.package1.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 @Data
@@ -12,6 +9,12 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class UpdateSalaryRequestDto {
 
+    @NotNull @Getter @Setter
+    private  Long salary_increment;
+
+    @NotNull @Getter @Setter
+    private Long flag;
+
     @Builder.Default
     private Long companyId= Long.valueOf(-1);
     @Builder.Default
@@ -19,8 +22,5 @@ public class UpdateSalaryRequestDto {
     @Builder.Default
     private Long employeeId=Long.valueOf(-1);
 
-    @NotNull
-    private  Long salary;
-    @NotNull
-    private boolean flag;
+
 }

@@ -3,6 +3,7 @@ package work1.project1.package1.entity;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import work1.project1.package1.util.CommonFeilds;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,27 +14,36 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
-public class EmployeeEntity {
+public class EmployeeEntity  {
 
     @Id
     @Column(name="id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
 
-    @Getter @Setter
-    @Column(name="name")
-    private String name;
 
-    @Getter @Setter
+    @Column(name="name")
+    @Getter @Setter private String name;
+
+
     @Column(name="phone")
-    private String phone;
+    @Getter @Setter private String phone;
 
 
     @Getter @Setter
     @Column(name="salary")
     private Long salary;
 
-    @Getter
+    @Getter @Setter
+    @Column(name="manager_id")
+    private Long  managerId;
+
+
+    @Getter @Setter
+    @Column(name="designation")
+    private String designation;
+
+    @Getter @Setter
     @Column(name="created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -51,17 +61,34 @@ public class EmployeeEntity {
     @Column(name="updated_by")
     private Long updatedBy;
 
-    @OneToMany(mappedBy = "employeeId",fetch = FetchType.LAZY)
-    private List<DepartmentEmployeeMapping>  departmentEmployeeMappingList;
 
-
+    public EmployeeEntity(String name, String phone, Long salary, Long managerId, String designation, Long createdBy, Long updatedBy,
+                          boolean isActive) {
+     //super(createdBy,updatedBy);
+     this.name=name;
+     this.phone=phone;
+     this.salary=salary;
+     this.managerId=managerId;
+     this.designation=designation;
+     this.createdBy=createdBy;
+        this.updatedBy=updatedBy;
+    }
+    public EmployeeEntity(String name, String phone, Long salary, String designation, Long createdBy, Long updatedBy,
+                          boolean isActive) {
+      //  super(createdBy,updatedBy);
+        this.name=name;
+        this.phone=phone;
+        this.salary=salary;
+        this.designation=designation;
+        this.createdBy=createdBy;
+        this.updatedBy=updatedBy;
+    }
     public EmployeeEntity(String name, String  phone,Long salary, long createdBy, long updatedBy) {
+       // super(createdBy,updatedBy);
         this.name = name;
         this.phone = phone;
         this.salary=salary;
         this.createdBy=createdBy;
         this.updatedBy=updatedBy;
     }
-
-
 }
