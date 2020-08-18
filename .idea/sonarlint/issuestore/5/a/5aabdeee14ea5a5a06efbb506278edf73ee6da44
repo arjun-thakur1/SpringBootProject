@@ -1,0 +1,11 @@
+
+l
+java:S1128"JRemove this unused import 'javax.validation.ConstraintViolationException'.(×ÁËóüÿÿÿÿ8ÚˆÓ”¾.
+b
+java:S1128"ERemove this unused import 'javax.validation.UnexpectedTypeException'.(Ìç¡°8Ü•¾.
+o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(Ä»¼¥
+L
+java:S37401"/Provide the parametrized type for this generic.(²êæ‡8Óô—ëº.
+p
+java:S1128"SRemove this unused import 'org.springframework.web.bind.annotation.ResponseStatus'.(¯×ñ8Ü•¾.
+]	java:S1255"<This block of commented-out lines of code should be removed.(»Òù«úÿÿÿÿ8àäö¿¾.

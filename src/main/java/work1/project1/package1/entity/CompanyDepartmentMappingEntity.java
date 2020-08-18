@@ -3,7 +3,6 @@ package work1.project1.package1.entity;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import work1.project1.package1.util.CommonFeilds;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -47,6 +46,7 @@ public class CompanyDepartmentMappingEntity {
     @Getter @Setter
     @Column(name="updated_by")
     private Long updatedBy;
+
 
     public CompanyDepartmentMappingEntity(Long companyId, Long departmentId,boolean isActive){
         this.companyId=companyId;

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import static work1.project1.package1.constants.ApplicationConstants.EMPLOYEE;
 import static work1.project1.package1.constants.ApplicationConstants._NONE;
 
 @Data
@@ -36,6 +37,14 @@ public class EmployeeAddRequest {
     private Long managerId= Long.valueOf(-1);
 
     @Builder.Default
-    private String designation=_NONE;
+    private String designation=EMPLOYEE;
+
+    public  EmployeeAddRequest(String name,String phone,Long salary,Long companyId,Long departmentId){
+        this.name=name;
+        this.phone=phone;
+        this.salary=salary;
+        this.companyId=companyId;
+        this.departmentId=departmentId;
+    }
 
 }

@@ -2,7 +2,6 @@ package work1.project1.package1.entity;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import work1.project1.package1.util.CommonFeilds;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -52,12 +51,6 @@ public class EmployeeMappingEntity  implements Serializable {
     @Getter @Setter
     @Column(name="updated_by")
     private Long updatedBy;
-
-   // @ManyToOne(cascade = CascadeType.ALL)
-    //@JoinColumn(name = "employeeid")
-    //private EmployeeEntity employeeEntity;
-
-
 
     public boolean getIsActive() {
         return this.isActive;

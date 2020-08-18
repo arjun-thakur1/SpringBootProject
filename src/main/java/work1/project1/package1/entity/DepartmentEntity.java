@@ -3,7 +3,7 @@ import lombok.*;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import work1.project1.package1.util.CommonFeilds;
+import work1.project1.package1.other.CommonFeilds;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -11,11 +11,9 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table
-//@Configuration
 @AllArgsConstructor
 @NoArgsConstructor
 public class DepartmentEntity extends CommonFeilds {
-
 
     @Id
     @Column(name="id")
@@ -25,9 +23,6 @@ public class DepartmentEntity extends CommonFeilds {
     @Getter @Setter
     @Column(name="department_name")
     private String departmentName;
-
-    @Getter @Setter @Column(name="is_active")
-    private boolean isActive;
 
     @Getter @Setter
     @Column(name="created_at")
@@ -47,24 +42,10 @@ public class DepartmentEntity extends CommonFeilds {
     @Column(name="updated_by")
     private Long updatedBy;
 
-    public boolean getIsActive() {
+    public DepartmentEntity(String departmentName,long createdBy,long updatedBy) {
+        this.departmentName=departmentName;
+        this.createdBy=createdBy;
+        this.updatedBy=updatedBy;
+    }
 
-        return this.isActive;
-    }
-    public DepartmentEntity(String departmentName,long createdBy,long updatedBy, boolean isActive) {
-       // super(createdBy,updatedBy);
-        this.departmentName=departmentName;
-        this.isActive = isActive;
-        this.createdBy=createdBy;
-        this.updatedBy=updatedBy;
-    }
-    public DepartmentEntity(Long departmentId,String departmentName,long createdBy,long updatedBy,
-                            boolean isActive) {
-      //  super(createdBy,updatedBy);
-        this.id=departmentId;
-        this.departmentName=departmentName;
-        this.isActive = isActive;
-        this.createdBy=createdBy;
-        this.updatedBy=updatedBy;
-    }
 }

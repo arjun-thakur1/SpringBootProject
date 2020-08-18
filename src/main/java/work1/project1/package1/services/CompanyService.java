@@ -1,26 +1,29 @@
 package work1.project1.package1.services;
 
 import org.modelmapper.ModelMapper;
-import work1.project1.package1.dto.response.CompanyDeleteResponse;
-import work1.project1.package1.dto.response.CompanyResponse;
-import work1.project1.package1.dto.response.EmployeeCompleteResponse;
-import work1.project1.package1.dto.response.Response;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import work1.project1.package1.dto.response.*;
 import work1.project1.package1.entity.CompanyDepartmentMappingEntity;
 import work1.project1.package1.entity.CompanyEntity;
 
 import work1.project1.package1.entity.EmployeeEntity;
-import work1.project1.package1.mapper.MyMapper;
+import work1.project1.package1.exception.CustomException;
+import work1.project1.package1.exception.DuplicateDataException;
+import work1.project1.package1.exception.NotPresentException;
+import work1.project1.package1.exception.ResponseHttp;
 import work1.project1.package1.repository.CompanyDepartmentMappingRepository;
 import work1.project1.package1.repository.DepartmentRepository;
 import work1.project1.package1.dto.request.CompanyAddRequest;
 import work1.project1.package1.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import work1.project1.package1.repository.EmployeeRepository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.util.*;
 
 import static work1.project1.package1.constants.ApplicationConstants.*;
 
@@ -42,22 +45,20 @@ public class CompanyService {
    private EmployeeService employeeService;
 
     @Autowired
-    MyMapper myMapper; //................................................................remove
-
-    @Autowired
     ModelMapper modelMapper;
 
     @Autowired
-    CompanyDepartmentMappingService companyDepartmentMappingService;
-
-   @Autowired
     CompanyDepartmentMappingRepository mappingRepository;
+    @Autowired
+    EmployeeRepository employeeRepository;
 
     @Autowired
     Caching caching;
 
-    public Object getAll()  {
-       List<CompanyEntity>companyEntityList= companyRepository.findAllByIsActive(true);
+    public List<CompanyResponse> getAll(int page,int size) throws NotPresentException {
+        Pageable pageable= PageRequest.of(page,size);
+       Page<CompanyEntity> pageCompanyEntityList= companyRepository.findAllByIsActive(true,pageable);
+       List<CompanyEntity> companyEntityList=pageCompanyEntityList.getContent();
        if(!companyEntityList.isEmpty()) {
            List<CompanyResponse> companyResponseList=new ArrayList<>();
            companyEntityList.forEach((c)->{
@@ -65,60 +66,62 @@ public class CompanyService {
            });
            return  companyResponseList;
        }
-        return new Response(404,NOT_PRESENT);
+       throw new NotPresentException(NOT_PRESENT);
+
     }
 
-    public Object getCompanyById(Long id) {
-        CompanyEntity companyEntity= companyRepository.findByIdAndIsActive(id, true);
-        if(companyEntity!=null) {
-            return      modelMapper.map(companyEntity,CompanyResponse.class);//responseGetCompanyDto.convert(companyEntity);
+    public CompanyResponse getCompanyById(Long id) throws NotPresentException {
+        CompanyEntity companyEntity=companyRepository.findQuery(id,true);
+             if(companyEntity!=null) {
+            return  modelMapper.map(companyEntity,CompanyResponse.class);
         }
-        return new Response(404,NOT_PRESENT);
+        throw new NotPresentException(NOT_PRESENT);
     }
 
 
-    public Object addCompanyDetail(CompanyAddRequest companyAddRequest) {
+    public CompanyResponse addCompanyDetail(CompanyAddRequest companyAddRequest,Long userId) throws DuplicateDataException {
         String companyName= companyAddRequest.getCompanyName().toLowerCase();
         String ceoName=companyAddRequest.getCeoName();     //=null; by default already build null
-        if(companyAddRequest.getCeoName()!=null)
-        {
+        if(companyAddRequest.getCeoName()!=null) {
            ceoName=companyAddRequest.getCeoName().toLowerCase();
         }
-        if(companyRepository.existsByCompanyName(companyName)) //company name is unique
-        {    //company name unique so in lower-case
+        if(companyRepository.existsByCompanyName(companyName)) {
+            //company name unique so in lower-case
            CompanyEntity companyEntity=   companyRepository.findByCompanyName(companyName);
            if(companyEntity.getIsActive())
-               return new Response(409, DUPLICATE_NAME_ERROR);
+               throw new DuplicateDataException( DUPLICATE_NAME_ERROR);
            companyEntity.setActive(true);
            companyRepository.save(companyEntity);
            return    modelMapper.map(companyEntity, CompanyResponse.class);
         }
-        else
-        {
-           CompanyEntity companyEntity=new CompanyEntity(companyName,ceoName,-1,-1,true);
+        else {
+           CompanyEntity companyEntity=new CompanyEntity(companyName,ceoName,userId,-1,true);
            this.companyRepository.save(companyEntity);
            return modelMapper.map(companyEntity, CompanyResponse.class);
         }
     }
 
-    public Object deleteCompanyDetails(Long companyId)  {
+    public CompanyDeleteResponse deleteCompanyDetails(Long companyId) throws NotPresentException {
         CompanyEntity companyEntity=companyRepository.findByIdAndIsActive(companyId,true);
         if(companyEntity!=null) {
             companyEntity.setActive(false);
             companyRepository.save(companyEntity);
-            // caching.deleteCompany(company_id);
             List<CompanyDepartmentMappingEntity> companyDepartmentMappingEntityList=mappingRepository.
                     findAllByCompanyIdAndIsActive(companyId,true);
             companyDepartmentMappingEntityList.forEach((d)->{
+                try {
                     departmentService.deleteDepartmentDetails(companyId,d.getDepartmentId());
-
+                } catch (ResponseHttp responseHttp) {
+                    responseHttp.printStackTrace();
+                }
             });
+            caching.deleteDepartmentsOfCompany(companyId);
             return  new CompanyDeleteResponse((long) 200,DELETE_SUCCESS);
         }
-       return new Response(409,NOT_PRESENT);
+       throw new NotPresentException(NOT_PRESENT);
     }
 
-    public Object updateDetails(long  companyId, String company, String ceo){
+    public CompanyResponse updateDetails(long  companyId, String company, String ceo,Long userId) throws CustomException, DuplicateDataException {
         String companyName=null,ceoName=null;
         if(company!=null)
             companyName=company.toLowerCase();
@@ -127,59 +130,34 @@ public class CompanyService {
         Optional<CompanyEntity> fetchedCompanyEntity= Optional.ofNullable(companyRepository.findByIdAndIsActive(companyId, true));
         if(fetchedCompanyEntity.isPresent()) {
             CompanyEntity companyEntity= fetchedCompanyEntity.get();
-            if(companyName!=null && !companyName.equals(companyEntity.getCompanyName()))//check for unique company name , if not same as present means want to update
-            {
+            if(companyName!=null && !companyName.equals(companyEntity.getCompanyName())) { //check for unique company name , if not same as present means want to update
                 if(companyRepository.existsByCompanyName(companyName))
-                    return new Response(409,DUPLICATE_NAME_ERROR);
+                    throw  new DuplicateDataException(DUPLICATE_NAME_ERROR);
                 companyEntity.setCompanyName(companyName);
             }
             if (ceoName!=null) {
                 companyEntity.setCeoName(ceoName);
-            }    //   caching.update(companyId,updateCompanyEntity);
+            }
+            companyEntity.setUpdatedBy(userId);
             companyRepository.save(companyEntity);
-            return   new CompanyResponse(companyId,companyEntity.getCompanyName(),companyEntity.getCeoName(),UPDATE_SUCCESS) ;//new Response(500 , Update_Success);
+            return   new CompanyResponse(companyId,companyEntity.getCompanyName(),companyEntity.getCeoName(),UPDATE_SUCCESS) ;
         }
-        return new Response(404,FAILED);
+        throw  new CustomException(FAILED);
     }
 
-   // @Cacheable(value = "company_cache",key="#id")
 
-
-
-
-
-
-    public Object getallEmployeesOfCompany(Long companyId) {
-        List<CompanyDepartmentMappingEntity> cdMappingEntity=companyDepartmentMappingService.getAllDepartmentOfCompany
-                (companyId);
-        if(cdMappingEntity==null )
-            return new Response(404,FAILED);
-        if( cdMappingEntity.isEmpty())
-            return new Response(200,NOT_PRESENT);
-        HashMap<Long,List<EmployeeCompleteResponse>> mapp= new HashMap<>();
-        cdMappingEntity.forEach(d->{
-          List<EmployeeCompleteResponse> employeeEntityList =departmentService.getAllEmployeeOfDepartment(d.getCompanyId(),d.getDepartmentId());
-          mapp.put(d.getDepartmentId(),employeeEntityList);
+    public HashMap<Long,List<EmployeeResponse>> getallEmployeesOfCompany(Long companyId) throws CustomException, NotPresentException {
+        List<DepartmentResponse> departmentResponseList=departmentService.getAllDepartmentsOfCompany(companyId);
+        HashMap<Long,List<EmployeeResponse>> departmentToEmployeesMap=new HashMap<>();
+        departmentResponseList.forEach(d->{
+           List<EmployeeEntity> employeeEntityList= employeeRepository.findAllEmployeeQuery(companyId,d.getId(),true);
+           List<EmployeeResponse>employeeResponseList= Arrays.asList(modelMapper.map(employeeEntityList,EmployeeResponse[].class));
+            departmentToEmployeesMap.put(d.getId(),employeeResponseList);
         });
-       return mapp;
+        if(departmentToEmployeesMap==null || departmentToEmployeesMap.isEmpty())
+            throw new NotPresentException(NOT_PRESENT);
+        return departmentToEmployeesMap;
     }
-/*
 
-/*
-    public Object getCompanyCompleteDetails(Long companyId){
-      Optional<CompanyEntity> companyEntity= Optional.ofNullable(companyRepository.findByCompanyIdAndIsActive(companyId, true));
-      if(companyEntity.isPresent())
-      {
-         List<DepartmentEntity> departmentEntityList= departmentServices.getAllDepartmentsOfCompany(companyId);
-              if(departmentEntityList.isEmpty()) {
-                 return new Response(204, Not_Dept_Present);
-              }
-              else {
-                 List<DepartmentCompanyResponse>responseDepartmentList= new ArrayList<>();
-                 return departmentEntityListToResponseDeptList.convert(departmentEntityList);
-              }
-      }
-     return new Response(200 , NOT_PRESENT);
-    }
-*/
+
 }

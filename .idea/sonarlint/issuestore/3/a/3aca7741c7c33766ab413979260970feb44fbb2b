@@ -1,9 +1,0 @@
-
-Q	java:S125"<This block of commented-out lines of code should be removed.(Ä¾Ì§
-V	java:S125"<This block of commented-out lines of code should be removed.(÷¤Œûÿÿÿÿ
-‡
-java:S1130"lRemove the declaration of thrown exception 'java.lang.Exception', as it cannot be thrown from method's body.(ÙØ¤Şıÿÿÿÿ
-€
-java:S1488""cImmediately return this expression instead of assigning it to the temporary variable "modelMapper".(Éè±8Á‚“Øº.
-o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(÷œÉş
-Q	java:S125"<This block of commented-out lines of code should be removed.(™šû

@@ -1,7 +1,5 @@
 
 package work1.project1.package1.interceptor;
-//   package com.frandorado.loggingrequestresponsewithbody.interceptor;
-
 import java.lang.reflect.Type;
 
 import javax.servlet.http.HttpServletRequest;

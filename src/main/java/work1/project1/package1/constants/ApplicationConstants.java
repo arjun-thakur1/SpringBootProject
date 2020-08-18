@@ -29,4 +29,11 @@ public class ApplicationConstants {
 
     public static final String PHONE="0000000000";
 
+    public static final String EMPLOYEE="employee";
+    public static final String DEPARTMENT_HEAD="hod";
+    public static final String ADMIN="admin";
+    private ApplicationConstants(){
+
+    }
+
 }

@@ -1,9 +1,14 @@
 package work1.project1.package1.controller;
 
 import work1.project1.package1.dto.request.CompanyUpdateRequest;
-import work1.project1.package1.dto.request.UpdateSalaryRequestDto;
+import work1.project1.package1.dto.response.CompanyDeleteResponse;
+import work1.project1.package1.dto.response.CompanyResponse;
+import work1.project1.package1.dto.response.EmployeeResponse;
 import work1.project1.package1.exception.CustomException;
 import work1.project1.package1.dto.request.CompanyAddRequest;
+import work1.project1.package1.exception.DuplicateDataException;
+import work1.project1.package1.exception.NotPresentException;
+import work1.project1.package1.services.AuthorizationService;
 import work1.project1.package1.services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +20,10 @@ import work1.project1.package1.services.DepartmentService;
 import work1.project1.package1.services.EmployeeService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping("/company")
@@ -27,40 +36,54 @@ public class CompanyController {
     private DepartmentService departmentService;
     @Autowired
     private EmployeeService employeeService;
+   @Autowired
+   private AuthorizationService authorizationService;
 
-    @RequestMapping(value = "/all" , produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getAllCompanies() throws CustomException {
-        return   companyService.getAll();
+
+    @GetMapping(value = "/all" , produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<CompanyResponse>> getAllCompanies(@RequestHeader(value = "user_id",defaultValue = "0")Long userId,
+                                                 @RequestHeader(value="password",defaultValue = "0")String password,
+                                                 @RequestParam(value = "page",defaultValue = "0")int page,
+                                                 @RequestParam(value = "size",defaultValue = "10")int size) throws CustomException, NotPresentException {
+        authorizationService.isAccessOfAll(userId,password);
+        return new ResponseEntity<> (companyService.getAll(page,size),HttpStatus.OK);
     }
 
     @GetMapping(value="/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getCompanyDetailsById(@Valid @PathVariable("id") Long companyId) throws CustomException {
-       return  companyService.getCompanyById(companyId);
+    public ResponseEntity<CompanyResponse> getCompanyDetailsById(@Valid @PathVariable("id") @NotNull  Long companyId, @RequestHeader(value = "user_id",defaultValue = "0")Long userId,
+                                                 @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, NotPresentException {
+        authorizationService.isAccessOfCompany(userId,password,companyId);
+        return new ResponseEntity<> (companyService.getCompanyById(companyId),HttpStatus.OK);
     }
 
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> addCompany( @Valid @RequestBody CompanyAddRequest companyDto ) {
-        return new ResponseEntity<> (companyService.addCompanyDetail(companyDto), HttpStatus.OK);
+    public ResponseEntity<CompanyResponse> addCompany( @Valid @RequestBody CompanyAddRequest companyDto ,@RequestHeader(value = "user_id",defaultValue = "0")Long userId,
+                                              @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, DuplicateDataException {
+        authorizationService.isAccessOfAll(userId,password);
+        return new ResponseEntity<> (companyService.addCompanyDetail(companyDto,userId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{companyId}")
-    public Object deleteCompanyById(@PathVariable("companyId") Long companyId) throws CustomException {
-        return companyService.deleteCompanyDetails(companyId);
+    public  ResponseEntity<CompanyDeleteResponse> deleteCompanyById(@PathVariable("companyId") Long companyId, @RequestHeader(value = "user_id",defaultValue = "0")Long userId,
+                                                   @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, NotPresentException {
+        authorizationService.isAccessOfAll(userId,password);
+        return new ResponseEntity<> (companyService.deleteCompanyDetails(companyId),HttpStatus.OK);
     }
 
     @PutMapping("")
-    public Object updateCompanyDetail(@Valid @RequestBody CompanyUpdateRequest companyUpdateRequestDto) throws CustomException {
-        return companyService.updateDetails(companyUpdateRequestDto.getId(),companyUpdateRequestDto.getCompanyName(),
-                companyUpdateRequestDto.getCeoName());
+    public ResponseEntity<CompanyResponse> updateCompanyDetail(@Valid @RequestBody CompanyUpdateRequest companyUpdateRequestDto , @RequestHeader(value = "user_id",defaultValue = "0")Long userId,
+                                               @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, DuplicateDataException {
+        authorizationService.isAccessOfCompany(userId,password,companyUpdateRequestDto.getId());
+        return new ResponseEntity<> (companyService.updateDetails(companyUpdateRequestDto.getId(),companyUpdateRequestDto.getCompanyName(),
+                companyUpdateRequestDto.getCeoName(),userId),HttpStatus.OK);
     }
 
-
-    //response of this api must be change....
     @GetMapping (value="/complete-details/{companyId}")
-    public Object getEmployeesOfCompany(@PathVariable("companyId") Long companyId) {
-        return  companyService.getallEmployeesOfCompany(companyId);
+    public ResponseEntity<HashMap<Long,List<EmployeeResponse>>> getEmployeesOfCompany(@PathVariable("companyId") Long companyId, @RequestHeader(value = "user_id",defaultValue = "0")Long userId,
+                                                                      @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, NotPresentException {
+        authorizationService.isAccessOfCompany(userId,password,companyId);
+        return  new ResponseEntity<> (companyService.getallEmployeesOfCompany(companyId),HttpStatus.OK);
     }
-
 
 }
 

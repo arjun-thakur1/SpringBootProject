@@ -1,0 +1,8 @@
+
+B
+java:S1165" Make this "message" field final.(‡Å¿Îüÿÿÿÿ8±ÆÒî½.
+<
+java:S1165"Make this "status" field final.(²€›—8±ÆÒî½.
+o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(Ä»¼¥
+£
+java:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(÷Ë‡ìûÿÿÿÿ8Ü×Â½.

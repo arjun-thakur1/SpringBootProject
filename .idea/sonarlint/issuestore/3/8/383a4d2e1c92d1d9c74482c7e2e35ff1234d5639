@@ -1,5 +1,0 @@
-
-u	java:S116"TRename this field "_password" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(±Ï“Àùÿÿÿÿ8®ãÁƒº.
-s	java:S116"RRename this field "user_id" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ôøÃóþÿÿÿÿ8ÙÁ¥ƒº.
-t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(’î¤Øüÿÿÿÿ
-r	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(°„¦Žøÿÿÿÿ8Š×Ìƒº.

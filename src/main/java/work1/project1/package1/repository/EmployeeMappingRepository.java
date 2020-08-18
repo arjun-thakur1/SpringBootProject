@@ -17,7 +17,6 @@ public interface EmployeeMappingRepository extends JpaRepository<EmployeeMapping
 
     List<EmployeeMappingEntity> findByMappingIdAndIsActive(Long id, boolean b);
 
-
     @Query(nativeQuery = true,value = "SELECT * FROM department_employee_mapping m  INNER JOIN employee e  on " +
             "m.employee_id=e.id")
     public List<EmployeeMappingEntity> FindAllWithDescriptionQuery();

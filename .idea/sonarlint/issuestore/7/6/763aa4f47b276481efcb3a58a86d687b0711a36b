@@ -1,0 +1,16 @@
+
+n	java:S117Ô"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ñï°«8éÖ•á¾.
+J
+java:S1602Ì",Remove useless curly braces around statement(–÷Òü8éÖ•á¾.
+o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(ÅäÏÒ
+s	java:S117½"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ú„÷òÿÿÿÿÿ8éÖ•á¾.
+O
+java:S1481m"3Remove this unused "employeeEntity" local variable.(¹”Õo8éÖ•á¾.
+z
+java:S1192E"]Define a constant instead of duplicating this literal " phone no is already used!! " 3 times.(ŞÑéâ8˜‹ã¾.
+n	java:S117Ô"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ñï°«8éÖ•á¾.
+J
+java:S1602Ú",Remove useless curly braces around statement(Á³«8éÖ•á¾.
+u
+java:S3776"RRefactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed.(Öâãşÿÿÿÿ8éÖ•á¾.
+s	java:S117à"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Õ”Ùõúÿÿÿÿ8éÖ•á¾.

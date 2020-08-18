@@ -1,8 +1,7 @@
 package work1.project1.package1.dto.request;
 
 import lombok.*;
-import org.springframework.boot.context.properties.bind.DefaultValue;
-
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -13,7 +12,8 @@ import java.io.Serializable;
 public class CompanyAddRequest implements Serializable {
 
 
-    @NotNull
+    @NotNull(message = " company name must not be null!! ")
+    @NotEmpty
     @Getter @Setter private String companyName;
 
     @Builder.Default

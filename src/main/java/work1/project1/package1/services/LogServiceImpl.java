@@ -25,14 +25,11 @@ public class LogServiceImpl implements LoggingService {
            StringBuilder stringBuilder = new StringBuilder();
             Map<String, String> parameters = buildParametersMap(httpServletRequest);
 
-         //   long startTime=System.currentTimeMillis();
-          //  httpServletRequest.setAttribute("startTime", startTime);
-
             stringBuilder.append(REQUEST);
-               stringBuilder.append("method=[").append(httpServletRequest.getMethod()).append("] ");
+            stringBuilder.append("method=[").append(httpServletRequest.getMethod()).append("] ");
             stringBuilder.append("path=[").append(httpServletRequest.getRequestURI()).append("] ");
             stringBuilder.append("headers=[").append(buildHeadersMap(httpServletRequest)).append("] ");
-         stringBuilder.append("startTime=[").append(httpServletRequest.getAttribute("startTime")).append("] ");
+            stringBuilder.append("startTime=[").append(httpServletRequest.getAttribute("startTime")).append("] ");
 
             if (!parameters.isEmpty()) {
                 stringBuilder.append("parameters=[").append(parameters).append("] ");
@@ -70,13 +67,11 @@ public class LogServiceImpl implements LoggingService {
                 String value = httpServletRequest.getParameter(key);
                 resultMap.put(key, value);
             }
-
             return resultMap;
         }
 
         private Map<String, String> buildHeadersMap(HttpServletRequest request) {
             Map<String, String> map = new HashMap<>();
-
             Enumeration headerNames = request.getHeaderNames();
             while (headerNames.hasMoreElements()) {
                 String key = (String) headerNames.nextElement();
@@ -88,7 +83,6 @@ public class LogServiceImpl implements LoggingService {
 
         private Map<String, String> buildHeadersMap(HttpServletResponse response) {
             Map<String, String> map = new HashMap<>();
-
             Collection<String> headerNames = response.getHeaderNames();
             for (String header : headerNames) {
                 map.put(header, response.getHeader(header));
@@ -97,6 +91,4 @@ public class LogServiceImpl implements LoggingService {
             return map;
         }
 
-    }
-
- /* */
+}

@@ -1,0 +1,9 @@
+
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(³ò¹úÿÿÿÿ
+Q
+java:S1128"/Remove this unused import 'java.util.Optional'.(¨˜ëİüÿÿÿÿ8ö‚¸».
+n
+java:S1128
+"LRemove this unused import 'work1.project1.package1.entity.DepartmentEntity'.(£Ëª—ÿÿÿÿÿ8¯£³æ½.
+|
+java:S1128"ZRemove this unused import 'work1.project1.package1.entity.CompanyDepartmentMappingEntity'.(ñ†…ûÿÿÿÿ8ÑÙ¤æ½.

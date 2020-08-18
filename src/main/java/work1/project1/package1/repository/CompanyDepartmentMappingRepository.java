@@ -1,6 +1,7 @@
 package work1.project1.package1.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import work1.project1.package1.entity.CompanyDepartmentMappingEntity;
 
@@ -19,5 +20,4 @@ public interface CompanyDepartmentMappingRepository extends JpaRepository<Compan
 
     CompanyDepartmentMappingEntity findByIdAndIsActive(Long mappingId, boolean b);
 
-    List<CompanyDepartmentMappingEntity> findByCompanyIdAndIsActive(Long companyId, boolean b);
 }

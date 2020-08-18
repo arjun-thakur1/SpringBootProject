@@ -22,6 +22,5 @@ public class ExceptionResponse {
     public ExceptionResponse(Date timestamp, String message) {
         this.timestamp = timestamp;
         this.message = message;
-
     }
 }

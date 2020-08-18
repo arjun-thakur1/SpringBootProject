@@ -1,0 +1,11 @@
+
+V	java:S125"<This block of commented-out lines of code should be removed.(÷¤Œûÿÿÿÿ
+g
+java:S1128"JRemove this unused import 'org.modelmapper.convention.MatchingStrategies'.(ìßêŞ8ÖÔ±Ÿ¼.
+o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¾·Éß
+Q	java:S125"<This block of commented-out lines of code should be removed.(™šû
+Z
+java:S1128"8Remove this unused import 'org.modelmapper.ModelMapper'.(ó¿Ôúÿÿÿÿ8ÖÔ±Ÿ¼.
+Q	java:S125"<This block of commented-out lines of code should be removed.(Ä¾Ì§
+‡
+java:S1130"lRemove the declaration of thrown exception 'java.lang.Exception', as it cannot be thrown from method's body.(ÙØ¤Şıÿÿÿÿ

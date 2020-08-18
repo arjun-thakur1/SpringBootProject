@@ -17,18 +17,16 @@ public class UserEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name="employeeId")
-    private Long employeeId;
+    @Column(name="userId")  //basically id is employeeId
+    private Long userId;
 
     @Column(name="_password")
     private String _password;
 
 
-
-    public UserEntity(Long employeeId,String _password) {
-        this.employeeId=employeeId;
+    public UserEntity(Long userId,String _password) {
+        this.userId=userId;
         this._password=_password;
     }
-
 
 }

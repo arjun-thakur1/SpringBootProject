@@ -3,7 +3,6 @@ package work1.project1.package1.entity;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import work1.project1.package1.util.CommonFeilds;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -52,25 +51,8 @@ public class CompanyEntity  {
     @Getter @Setter
     @Column(name="updated_by")
     private Long updatedBy;
-
-    public CompanyEntity(String companyName, String ceoName, boolean isActive) {
-        super();
-        this.companyName = companyName;
-        this.ceoName = ceoName;
-        this.isActive = isActive;
-    }
-
-    public CompanyEntity(Long companyId,String companyName,String  ceoName,long createdBy,long updatedBy, boolean isActive) {
-      //  super(createdBy,updatedBy);
-        this.id=companyId;
-        this.companyName = companyName;
-        this.ceoName = ceoName;
-        this.isActive = isActive;
-        this.createdBy=createdBy;
-        this.updatedBy=updatedBy;
-    }
+    
     public CompanyEntity(String companyName,String  ceoName,long createdBy,long updatedBy, boolean isActive) {
-      //  super();
         this.companyName = companyName;
         this.ceoName = ceoName;
         this.isActive = isActive;

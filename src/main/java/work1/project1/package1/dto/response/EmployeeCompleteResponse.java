@@ -19,11 +19,13 @@ public class EmployeeCompleteResponse {
     @Getter @Setter private Long managerId;
     @Getter @Setter private String designation;
 
+    @Getter @Setter private  String accessToken;
+
     @Getter @Setter private Long status;
     @Getter @Setter private String message;
 
-
-    public EmployeeCompleteResponse convert(EmployeeEntity employeeEntity, Long companyId, Long departmentId) {
+//multiple sources and one destination mapping..
+    public EmployeeCompleteResponse convert(EmployeeEntity employeeEntity, Long companyId, Long departmentId,String token) {
         EmployeeCompleteResponse completeResponseDto=new EmployeeCompleteResponse();
 
         completeResponseDto.setCompanyId(companyId);
@@ -36,7 +38,13 @@ public class EmployeeCompleteResponse {
         completeResponseDto.setManagerId(employeeEntity.getManagerId());
         completeResponseDto.setDesignation(employeeEntity.getDesignation());
         completeResponseDto.setStatus(Long.valueOf(200));
+        completeResponseDto.setAccessToken(token);
+
         completeResponseDto.setMessage(SUCCESS);
         return completeResponseDto;
     }
+
+
+
+
 }
