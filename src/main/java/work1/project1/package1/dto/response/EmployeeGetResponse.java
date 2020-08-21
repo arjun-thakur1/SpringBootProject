@@ -1,14 +1,11 @@
 package work1.project1.package1.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 
 import static work1.project1.package1.constants.ApplicationConstants.SUCCESS;
-
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter
@@ -16,10 +13,10 @@ public class EmployeeGetResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
      private Long   id;
-    @Getter @Setter private String name;
-    @Getter @Setter private String phone;
-    @Getter @Setter private Long status= Long.valueOf(200);
-    @Getter @Setter private String message=SUCCESS;
+     private String name;
+     private String phone;
+     private Long status= Long.valueOf(200);
+     private String message=SUCCESS;
 
     public EmployeeGetResponse(Long id, String name, String phone) {
         this.id=id;

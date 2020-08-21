@@ -3,6 +3,7 @@ package work1.project1.package1.dto.response;
 import lombok.Getter;
 import lombok.Setter;
 import work1.project1.package1.entity.EmployeeEntity;
+import work1.project1.package1.myenum.MyEnum;
 
 import static work1.project1.package1.constants.ApplicationConstants.SUCCESS;
 
@@ -17,7 +18,7 @@ public class EmployeeCompleteResponse {
 
     @Getter @Setter private Long salary;
     @Getter @Setter private Long managerId;
-    @Getter @Setter private String designation;
+    @Getter @Setter private MyEnum designation;
 
     @Getter @Setter private  String accessToken;
 

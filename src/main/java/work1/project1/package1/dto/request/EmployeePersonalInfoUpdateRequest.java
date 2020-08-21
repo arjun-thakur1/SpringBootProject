@@ -19,7 +19,6 @@ public class EmployeePersonalInfoUpdateRequest {
 
     @Pattern(regexp = "^[0-9]{10}$")
     @Builder.Default
-    @NotEmpty
     private String phone=null;
 
 }

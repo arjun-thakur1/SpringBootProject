@@ -17,6 +17,7 @@ import work1.project1.package1.entity.EmployeeEntity;
 import work1.project1.package1.entity.EmployeeMappingEntity;
 import work1.project1.package1.exception.CustomException;
 import work1.project1.package1.exception.NotPresentException;
+import work1.project1.package1.myenum.MyEnum;
 import work1.project1.package1.repository.CompanyRepository;
 import work1.project1.package1.repository.DepartmentRepository;
 import work1.project1.package1.repository.EmployeeMappingRepository;
@@ -92,11 +93,10 @@ public class Caching {
     @CacheEvict(value = "employee_cache",key="#id", allEntries = true)
     public Response deleteEmployeebyId(Long id) throws NotPresentException, CustomException {
         Optional<EmployeeEntity> fetchedEmployeeEntity=employeeRepository.findById(id);
-        if(fetchedEmployeeEntity.isPresent())
-        {
+        if(fetchedEmployeeEntity.isPresent()) {
             EmployeeEntity employeeEntity=fetchedEmployeeEntity.get();
             employeeEntity.setSalary(-1L);
-            employeeEntity.setDesignation(_NONE);
+            employeeEntity.setDesignation(MyEnum.NONE);
             employeeEntity.setManagerId(-1L);
             employeeRepository.save(employeeEntity);
 

@@ -121,7 +121,7 @@ public class CompanyService {
        throw new NotPresentException(NOT_PRESENT);
     }
 
-    public CompanyResponse updateDetails(long  companyId, String company, String ceo,Long userId) throws CustomException, DuplicateDataException {
+    public CompanyResponse updateDetails(long  companyId, String company, String ceo,Long userId) throws  DuplicateDataException, NotPresentException {
         String companyName=null,ceoName=null;
         if(company!=null)
             companyName=company.toLowerCase();
@@ -142,7 +142,7 @@ public class CompanyService {
             companyRepository.save(companyEntity);
             return   new CompanyResponse(companyId,companyEntity.getCompanyName(),companyEntity.getCeoName(),UPDATE_SUCCESS) ;
         }
-        throw  new CustomException(FAILED);
+        throw  new NotPresentException(FAILED+NOT_PRESENT);
     }
 
 

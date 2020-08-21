@@ -10,14 +10,13 @@ import work1.project1.package1.entity.*;
 import work1.project1.package1.exception.CustomException;
 import work1.project1.package1.exception.NotPresentException;
 import work1.project1.package1.exception.ResponseHttp;
+import work1.project1.package1.myenum.MyEnum;
 import work1.project1.package1.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static work1.project1.package1.constants.ApplicationConstants.*;
 
@@ -57,8 +56,8 @@ public class DepartmentService {
     }
 
     public DepartmentResponse addDepartment(DepartmentAddRequest addRequest,Long userId) throws CustomException {
-        DepartmentEntity departmentEntity = new DepartmentEntity(addRequest.getDepartmentName(), userId, -1);
-        if(departmentRepository.existsByDepartmentName(addRequest.getDepartmentName()))
+        DepartmentEntity departmentEntity = new DepartmentEntity(addRequest.getDepartmentName().toLowerCase(), userId, -1);
+        if(departmentRepository.existsByDepartmentName(addRequest.getDepartmentName().toLowerCase()))
             throw new CustomException(" Department already present!! ");
         departmentRepository.save(departmentEntity);
         return new DepartmentResponse(departmentEntity.getId(),departmentEntity.getDepartmentName());
@@ -82,12 +81,22 @@ public class DepartmentService {
             DepartmentEntity departmentEntity=fetchedDepartmentEntity.get();
             departmentEntity.setDepartmentName(departmentRequestDto.getDepartmentName());
             departmentEntity.setUpdatedBy(userId);
+            cacheDepartmentDeleteForCompanies(departmentId);// that has this department
             departmentRepository.save(departmentEntity);
             return modelMapper.map(departmentEntity,DepartmentResponse.class);
         }
         throw new NotPresentException(NOT_PRESENT);
     }
-
+    public void cacheDepartmentDeleteForCompanies(Long departmentId){
+       List<CompanyDepartmentMappingEntity> mappingEntityList= companyDepartmentMappingRepository.findByDepartmentId(departmentId);
+       Set<Long > companyIds=new HashSet<>();
+       mappingEntityList.forEach(m->{
+           companyIds.add(m.getCompanyId());
+       });
+       for( Long companyId : companyIds){
+           caching.deleteDepartmentsOfCompany(companyId);
+       }
+    }
     public List<DepartmentResponse> getAllDepartmentsOfCompany(Long companyId) throws CustomException, NotPresentException {
 
         return (List<DepartmentResponse>)caching.getAllDepartmentsOfCompany(companyId);
@@ -102,11 +111,13 @@ public class DepartmentService {
                CompanyDepartmentMappingEntity mappingEntity= companyDepartmentMappingRepository.
                        findByCompanyIdAndDepartmentId(companyId,departmentId);
                if(mappingEntity==null){
-                   CompanyDepartmentMappingEntity mappingEntity1=new CompanyDepartmentMappingEntity();
-                   mappingEntity1.setActive(true);
-                   mappingEntity1.setCompanyId(companyId);
-                   mappingEntity1.setDepartmentId(departmentId);
-           mappingEntity1.setUpdatedBy(userId);
+                   CompanyDepartmentMappingEntity mappingEntity1=new CompanyDepartmentMappingEntity
+                           (companyId,departmentId,userId,userId,true);
+                  // mappingEntity1.setActive(true);
+                  // mappingEntity1.setCompanyId(companyId);
+                   // mappingEntity1.setDepartmentId(departmentId);
+                   //mappingEntity1.setCreatedBy(userId);
+                   //mappingEntity.setUpdatedBy(userId);
                    caching.deleteDepartmentsOfCompany(companyId);
                    companyDepartmentMappingRepository.save(mappingEntity1);
                    return new Response(200, SUCCESS);
@@ -115,7 +126,8 @@ public class DepartmentService {
                    return new Response(200, " Department already present!! ");
                }
                mappingEntity.setActive(true);
-           mappingEntity.setUpdatedBy(userId);
+               mappingEntity.setCreatedBy(userId);
+               mappingEntity.setUpdatedBy(userId);
                caching.deleteDepartmentsOfCompany(companyId);
                companyDepartmentMappingRepository.save(mappingEntity);
                return new Response(200, SUCCESS);
@@ -143,7 +155,8 @@ public class DepartmentService {
         if(companyDepartmentMappingEntity==null)
             throw new ResponseHttp(HttpStatus.NOT_FOUND,DEPARTMENT_NOT_PRESENT);
         redisService.deleteTokensOfEmployeesOfDepartment(companyId,departmentId);
-        employeeRepository.deleteEmployeesOfDepartment(_NONE,-1L,-1L,companyId,departmentId,true,false);
+      //  System.out.println(MyEnum.none +" .. " );
+        employeeRepository.deleteEmployeesOfDepartment(MyEnum.none,-1L,-1L,companyId,departmentId,true,false);
         employeeRepository.deleteEmployeeDepartmentMapping(companyId,departmentId,true,false);
         companyDepartmentMappingEntity.setActive(false);
         caching.deleteDepartmentsOfCompany(companyId);
@@ -154,6 +167,7 @@ public class DepartmentService {
     public List<EmployeeResponse> getAllEmployeeOfDepartment(Long companyId,Long departmentId) throws NotPresentException {
 
         List<EmployeeEntity>employeeEntityList= employeeRepository.findAllEmployeeQuery(companyId,departmentId,true);
+        System.out.println(employeeEntityList);
          if(employeeEntityList==null || employeeEntityList.isEmpty())
              throw new NotPresentException(NOT_PRESENT);
         return  Arrays.asList(modelMapper.map(employeeEntityList,EmployeeResponse[].class));

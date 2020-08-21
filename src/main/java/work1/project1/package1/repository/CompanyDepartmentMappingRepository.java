@@ -20,4 +20,5 @@ public interface CompanyDepartmentMappingRepository extends JpaRepository<Compan
 
     CompanyDepartmentMappingEntity findByIdAndIsActive(Long mappingId, boolean b);
 
+    List<CompanyDepartmentMappingEntity> findByDepartmentId(Long departmentId);
 }

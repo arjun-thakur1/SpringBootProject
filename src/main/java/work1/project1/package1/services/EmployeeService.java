@@ -2,19 +2,25 @@ package work1.project1.package1.services;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import work1.project1.package1.dto.request.EmployeeAddRequest;
 import work1.project1.package1.dto.request.EmployeePersonalInfoUpdateRequest;
 import work1.project1.package1.dto.request.EmployeeUpdateRequest;
-import work1.project1.package1.dto.request.UpdateSalaryRequestDto;
+import work1.project1.package1.dto.request.UpdateSalaryRequest;
 import work1.project1.package1.dto.response.*;
 import work1.project1.package1.entity.CompanyDepartmentMappingEntity;
+import work1.project1.package1.entity.CompanyEntity;
 import work1.project1.package1.entity.EmployeeEntity;
 import work1.project1.package1.entity.EmployeeMappingEntity;
 import work1.project1.package1.exception.CustomException;
 import work1.project1.package1.exception.NotPresentException;
 import work1.project1.package1.exception.ResponseHttp;
+import work1.project1.package1.exception.SuccessException;
+import work1.project1.package1.myenum.MyEnum;
 import work1.project1.package1.other.TokenGenerator;
 import work1.project1.package1.repository.CompanyDepartmentMappingRepository;
 import work1.project1.package1.repository.EmployeeMappingRepository;
@@ -60,10 +66,11 @@ public class EmployeeService {
         Long managerId = employeeAddRequest.getManagerId();
         TokenGenerator tokenGenerator=new TokenGenerator();
         if (companyId == -1 || departmentId == -1) {
-            if(managerId!=-1 || !employeeAddRequest.getDesignation().equalsIgnoreCase(_NONE) || employeeAddRequest.getSalary()!=-1)
+            if(managerId!=-1 || !(employeeAddRequest.getDesignation()==(MyEnum.none)) ||!(employeeAddRequest.getDesignation()==(MyEnum.none))
+                    || employeeAddRequest.getSalary()!=1)
                 throw new CustomException(FAILED);
             EmployeeEntity employeeEntity =new EmployeeEntity(employeeAddRequest.getName(),employeeAddRequest.getPhone(),
-                    -1L,-1L,EMPLOYEE, userId,-1L);
+                    1L,-1L,MyEnum.none, userId,-1L);
             try {
                 employeeRepository.save(employeeEntity);
             }catch(org.springframework.dao.DataIntegrityViolationException e) {
@@ -83,9 +90,14 @@ public class EmployeeService {
                 throw  new NotPresentException(FAILED + " manager not present!! ");
             }
             if(employeeAddRequest.getSalary()==-1)
-                throw  new NotPresentException(FAILED+" Salary Required!!");
+                throw  new CustomException(FAILED+" Salary Required!!");
+            if(employeeAddRequest.getSalary()<=1)
+                throw  new CustomException(FAILED+" Positive Salary Required!!");
+            if(employeeAddRequest.getDesignation()==MyEnum.none)
+                employeeAddRequest.setDesignation(MyEnum.employee);
             EmployeeEntity employeeEntity =modelMapper.map(employeeAddRequest, EmployeeEntity.class);
             employeeEntity.setCreatedBy(userId);
+            employeeEntity.setUpdatedBy(userId);
             try {
                 employeeRepository.save(employeeEntity);
             }catch(org.springframework.dao.DataIntegrityViolationException e){
@@ -96,7 +108,9 @@ public class EmployeeService {
             caching.tokenCaching(token, "1");
             mappingService.add(mappingId, employeeEntity.getId());
             EmployeeCompleteResponse completeResponseDto=new EmployeeCompleteResponse();
-            return  completeResponseDto.convert(employeeEntity,companyId,departmentId,token);
+            completeResponseDto= completeResponseDto.convert(employeeEntity,companyId,departmentId,token);
+            if(userId==0) System.out.println(employeeEntity);
+            return completeResponseDto;
         }
         throw  new NotPresentException(FAILED +" Department-Company "+ NOT_PRESENT);
     }
@@ -105,9 +119,15 @@ public class EmployeeService {
        return caching.getEmployeeById(id);
     }
 
-    public List<EmployeeGetResponse> getAllEmployees() {
-     return Arrays.asList(modelMapper.map(employeeRepository.findAll(),EmployeeGetResponse[].class));
+    public List<EmployeeGetResponse> getAllEmployees(int page,int size) throws NotPresentException {
+        Pageable pageable= PageRequest.of(page,size);
+        Page<EmployeeEntity> pageEmployeeEntityList=employeeRepository.findAll(pageable);
+        List<EmployeeEntity> employeeEntityList= pageEmployeeEntityList.getContent();
+        if(employeeEntityList.isEmpty())
+            throw new NotPresentException(NOT_PRESENT);
+        return Arrays.asList(modelMapper.map(employeeEntityList,EmployeeGetResponse[].class));
     }
+
     boolean isManager(Long managerId) {
         Optional<EmployeeEntity> fetchedEmployeeEntity=employeeRepository.findById(managerId);
         if(fetchedEmployeeEntity.isPresent()) {
@@ -144,7 +164,8 @@ public class EmployeeService {
         throw new ResponseHttp(HttpStatus.NOT_FOUND,NOT_PRESENT);
     }
 
-    public EmployeeUpdateResponse updateDetails(EmployeeUpdateRequest requestDto , Long userId) throws CustomException, ResponseHttp, NotPresentException {
+    public EmployeeUpdateResponse updateDetails(EmployeeUpdateRequest requestDto , Long userId) throws CustomException,
+            ResponseHttp,NotPresentException, SuccessException {
         Long employeeId=requestDto.getId();
         Optional<EmployeeEntity> fetchedEmployeeEntity= employeeRepository.findById(employeeId);
         if(fetchedEmployeeEntity.isPresent()) {
@@ -153,22 +174,20 @@ public class EmployeeService {
             Long departmentId=requestDto.getDepartmentId();
             Long salary=requestDto.getSalary();
             Long managerId=requestDto.getManagerId();
-            String designation=requestDto.getDesignation();
+            MyEnum designation=requestDto.getDesignation();
             if(( companyId!=-1 && departmentId==-1) || ( companyId==-1 && departmentId!=-1)) //only one id given then error
                 throw new ResponseHttp(HttpStatus.BAD_REQUEST,FAILED+ " please provide company-department Id !! ");
             if(companyId!=-1 && departmentId!=-1) {
-                if(salary<=0)
+                if(salary<=1)
                     throw new CustomException(FAILED+ " salary required!! ");
                 mappingService.updateDetails(companyId, departmentId, employeeId,userId);
-            }
-            //if cid did not given then aupdate info after checking employment details
+            }//if cid did not given then aupdate info after checking employment details
             boolean flag=employeeMappingRepository.existsByEmployeeIdAndIsActive(employeeId,true);
             if(!flag)
                  throw  new ResponseHttp(HttpStatus.BAD_REQUEST,FAILED+" employee not part of any company-department!! ");
-            if(salary>=0)
+            if(salary>1)
                 employeeEntity.setSalary(salary);
-            if(designation!=null || designation!=_NONE)
-                employeeEntity.setDesignation(designation);
+            employeeEntity.setDesignation(designation);
             if(managerId!=-1){
                 if(isManager(managerId))
                     employeeEntity.setManagerId(managerId);
@@ -177,41 +196,48 @@ public class EmployeeService {
                 }
             }
             employeeEntity.setUpdatedBy(userId);
-            caching.updateEmployeeCache(employeeId,employeeEntity);
-            TokenGenerator tokenGenerator=new TokenGenerator();
-            String token=tokenGenerator.tokenGenerate(companyId,departmentId,employeeEntity.getId());
-            caching.tokenCaching(token, "1");
+            caching.updateEmployeeCache(employeeId, employeeEntity);
+            if(companyId!=-1 && departmentId!=-1) {
+                TokenGenerator tokenGenerator = new TokenGenerator();
+                String token = tokenGenerator.tokenGenerate(companyId, departmentId, employeeEntity.getId());
+                caching.tokenCaching(token, "1");
+                employeeRepository.save(employeeEntity);
+                return new EmployeeUpdateResponse(token,SUCCESS);
+            }
             employeeRepository.save(employeeEntity);
-            return new EmployeeUpdateResponse(token,SUCCESS);
+            throw new SuccessException(HttpStatus.OK," Update Success!! ");
         }
         throw  new NotPresentException(FAILED + NOT_PRESENT);
     }
 
 
-    public boolean updateSalary(UpdateSalaryRequestDto updateSalaryRequestDto) {
+    public boolean updateSalary(UpdateSalaryRequest updateSalaryRequestDto) throws CustomException {
         Long employeeId=updateSalaryRequestDto.getEmployeeId();
         Long departmentId=updateSalaryRequestDto.getDepartmentId();
         Long companyId=updateSalaryRequestDto.getCompanyId();
         Long salary_increment=updateSalaryRequestDto.getSalary_increment();
         Long flag=updateSalaryRequestDto.getFlag();
-
-        if(employeeId!=-1)
-           return updateEmployeeSalary(employeeId,salary_increment,flag);
-        if(departmentId!=-1 && companyId!=-1){
-              CompanyDepartmentMappingEntity companyDepartmentMappingEntity=companyDepartmentMappingRepository.
-                      findByCompanyIdAndDepartmentIdAndIsActive(companyId,departmentId,true);
-              if(companyDepartmentMappingEntity==null)
-                  return false;
-             return updateDepartmentSalary(companyDepartmentMappingEntity.getId(),salary_increment,flag);
-        }
-        if(companyId!=-1){
-            List<CompanyDepartmentMappingEntity> companyDepartmentMappingEntityList=companyDepartmentMappingRepository.
-                    findAllByCompanyIdAndIsActive(companyId,true);
-            companyDepartmentMappingEntityList.forEach(d->{
-                updateDepartmentSalary(d.getId(),salary_increment,flag);
-            });
-            return true;
-        }
+        if(flag==0 && salary_increment<=-100)
+            throw new CustomException(" salary can't update to negative value !! ");
+            if(flag<0 || flag>1)
+              throw new CustomException(" flag can only be 0 or 1. 0 for % increment & 1 for absolute increment ");
+            if (employeeId != -1)
+                return updateEmployeeSalary(employeeId, salary_increment, flag);
+            if (departmentId != -1 && companyId != -1) {
+                CompanyDepartmentMappingEntity companyDepartmentMappingEntity = companyDepartmentMappingRepository.
+                        findByCompanyIdAndDepartmentIdAndIsActive(companyId, departmentId, true);
+                if (companyDepartmentMappingEntity == null)
+                    return false;
+                return updateDepartmentSalary(companyDepartmentMappingEntity.getId(), salary_increment, flag);
+            }
+            if (companyId != -1) {
+                List<CompanyDepartmentMappingEntity> companyDepartmentMappingEntityList = companyDepartmentMappingRepository.
+                        findAllByCompanyIdAndIsActive(companyId, true);
+                companyDepartmentMappingEntityList.forEach(d -> {
+                    updateDepartmentSalary(d.getId(), salary_increment, flag);
+                });
+                return true;
+            }
         return false;
     }
 
@@ -222,43 +248,44 @@ public class EmployeeService {
         if(employeeMappingEntityList==null )
              return false;
         employeeMappingEntityList.forEach(m->{
-            updateEmployeeSalary(m.getEmployeeId(),salary_increment,flag);
+                updateEmployeeSalary(m.getEmployeeId(),salary_increment,flag);
         });
         return true;
     }
 
-    public boolean updateEmployeeSalary(Long employeeId, Long salary_increment,Long flag) {
-        if(mappingService.getIds(employeeId)==null)
-            return  false;
-        if(flag==1)  //increment by absolute value
-        {
-            Optional<EmployeeEntity> fetchedEmployeeEntity=employeeRepository.findById(employeeId);
-            if(fetchedEmployeeEntity.isPresent())
-            {
-                EmployeeEntity employeeEntity=fetchedEmployeeEntity.get();
-                employeeEntity.setSalary(employeeEntity.getSalary()+salary_increment);
+    public boolean updateEmployeeSalary(Long employeeId, Long salary_increment,Long flag)  {
+        if (mappingService.getIds(employeeId) == null)
+            return false;
+        if (flag == 1) {  //increment by absolute value
+            Optional<EmployeeEntity> fetchedEmployeeEntity = employeeRepository.findById(employeeId);
+            if (fetchedEmployeeEntity.isPresent()) {
+                EmployeeEntity employeeEntity = fetchedEmployeeEntity.get();
+                if(employeeEntity.getSalary() + salary_increment >=0)
+                employeeEntity.setSalary(employeeEntity.getSalary() + salary_increment);
+                else
+                employeeEntity.setSalary(0L);
+                employeeEntity.setUpdatedBy(employeeId);
                 employeeRepository.save(employeeEntity);
+                caching.updateEmployeeCache(employeeId, employeeEntity);
+                System.out.println(employeeEntity + "    ");
+                return true;
+            }
+            return false;
+        } else if (flag == 0) {
+            Optional<EmployeeEntity> fetchedEmployeeEntity = employeeRepository.findById(employeeId);
+            if (fetchedEmployeeEntity.isPresent()) {
+                EmployeeEntity employeeEntity = fetchedEmployeeEntity.get();
+                Long salary = employeeEntity.getSalary();
+                employeeEntity.setSalary(salary + ((salary * salary_increment) / 100));
+                employeeEntity.setUpdatedBy(employeeId);
+                employeeRepository.save(employeeEntity);
+                caching.updateEmployeeCache(employeeId, employeeEntity);
+                System.out.println(employeeEntity + "    ");
                 return true;
             }
             return false;
         }
-        else if(flag==0)
-        {
-            Optional<EmployeeEntity> fetchedEmployeeEntity=employeeRepository.findById(employeeId);
-            if(fetchedEmployeeEntity.isPresent())
-            {
-                EmployeeEntity employeeEntity=fetchedEmployeeEntity.get();
-                Long salary=employeeEntity.getSalary();
-                employeeEntity.setSalary(salary+((salary*salary_increment)/100));
-                employeeRepository.save(employeeEntity);
-                return true;
-            }
-            return false;
-        }
-        else
-        {
-            return false;
-        }
+        return false;
     }
 
 }

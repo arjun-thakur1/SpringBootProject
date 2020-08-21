@@ -1,6 +1,7 @@
 package work1.project1.package1.dto.request;
 
 import lombok.*;
+import work1.project1.package1.myenum.MyEnum;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -9,7 +10,7 @@ import java.io.Serializable;
 
 import static work1.project1.package1.constants.ApplicationConstants.EMPLOYEE;
 import static work1.project1.package1.constants.ApplicationConstants._NONE;
-
+@Data
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,8 +25,9 @@ public class EmployeeKafka implements Serializable {
     @Builder.Default
     private Long departmentId=-1L;
 
-    @NotNull @Positive
-    private Long salary;
+    @NotNull
+    @Builder.Default
+    private Long salary=-1L;
 
     private String name;
 
@@ -39,6 +41,6 @@ public class EmployeeKafka implements Serializable {
     private Long managerId= -1L;
 
     @Builder.Default
-    private String designation=EMPLOYEE;
+    private MyEnum designation=MyEnum.none;
 }
 

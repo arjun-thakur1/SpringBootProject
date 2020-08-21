@@ -3,6 +3,7 @@ package work1.project1.package1.entity;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import work1.project1.package1.myenum.MyEnum;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "employee")
 @AllArgsConstructor
 @Data
+@Getter @Setter
 @NoArgsConstructor
 public class EmployeeEntity  implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -23,45 +25,36 @@ public class EmployeeEntity  implements Serializable {
 
 
     @Column(name="name")
-    @Getter @Setter private String name;
-
+    private String name;
 
     @Column(name="phone")
-    @Getter @Setter private String phone;
+    private String phone;
 
-
-    @Getter @Setter
     @Column(name="salary")
     private Long salary;
 
-    @Getter @Setter
     @Column(name="manager_id")
     private Long  managerId;
 
-
-    @Getter @Setter
     @Column(name="designation")
-    private String designation;
+    @Enumerated(EnumType.STRING)
+    private MyEnum designation;
 
-    @Getter @Setter
     @Column(name="created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Getter @Setter
     @Column(name="created_by")
     private Long createdBy;
 
-    @Getter @Setter
     @Column(name="updated_at")
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @Getter @Setter
     @Column(name="updated_by")
     private Long updatedBy;
 
-    public EmployeeEntity(String name, String phone, Long salary, Long managerId, String designation, Long createdBy, Long updatedBy) {
+    public EmployeeEntity(String name, String phone, Long salary, Long managerId, MyEnum designation, Long createdBy, Long updatedBy) {
      //super(createdBy,updatedBy);
      this.name=name;
      this.phone=phone;

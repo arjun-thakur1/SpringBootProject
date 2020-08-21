@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import work1.project1.package1.configuration.Mapper;
 import work1.project1.package1.dto.request.EmployeeAddRequest;
 import work1.project1.package1.dto.request.EmployeeKafka;
+import work1.project1.package1.dto.response.EmployeeCompleteResponse;
 import work1.project1.package1.entity.EmployeeEntity;
 import work1.project1.package1.exception.CustomException;
 import work1.project1.package1.exception.NotPresentException;
@@ -17,7 +18,6 @@ import javax.validation.Valid;
 @Service
 @Validated
 public class KafkaConsumer {
-
 
     @Autowired
     EmployeeService employeeService;
@@ -30,26 +30,27 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "kafkaTopic2",  groupId="group_json",containerFactory = "kafkaListenerContainerFactory")
     public void consumeJson(@Valid EmployeeKafka employeeKafka) throws CustomException, NotPresentException {
-
+       // System.out.println(object +"   .....   ");
+       // EmployeeKafka employeeKafka=mapper.map(object,EmployeeKafka.class);
         Long employeeId = employeeKafka.getEmployeeId();
         EmployeeEntity employeeEntity = employeeRepository.findById(employeeId).orElse(null);
         if (employeeEntity != null) {
+            if(employeeKafka.getSalary()>=0)
             employeeEntity.setSalary(employeeKafka.getSalary());
             caching.updateEmployeeCache(employeeId,employeeEntity);
             employeeRepository.save(employeeEntity);
             return;
         }
-        if(employeeKafka.getName()==null || employeeKafka.getPhone()==null || employeeKafka.getSalary()==-1 || employeeKafka.getCompanyId()==-1
+        if(employeeKafka.getName()==null || employeeKafka.getPhone()==null || employeeKafka.getSalary()<=0 || employeeKafka.getCompanyId()==-1
         || employeeKafka.getDepartmentId()==-1) {
             System.out.println(" invalid inputs fetched from kafka topic!! ");
             return;
         }
-
         EmployeeAddRequest employeeAddRequest= mapper.map(employeeKafka,EmployeeAddRequest.class);
-        // System.out.println(employeeAddRequest);
         employeeService.addEmployee(employeeAddRequest,0L);
         return;
     }
+
 
 
 }

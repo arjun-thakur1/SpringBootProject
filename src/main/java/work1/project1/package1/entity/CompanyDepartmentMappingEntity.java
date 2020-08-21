@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Table
 @AllArgsConstructor
 @Data
+@Getter @Setter
 @NoArgsConstructor
 public class CompanyDepartmentMappingEntity {
 
@@ -28,17 +29,16 @@ public class CompanyDepartmentMappingEntity {
     @Column(name = "is_active")
     private boolean isActive;
 
-    @Getter
-    @Setter
+
     @Column(name="created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Getter @Setter
+
     @Column(name="created_by")
     private Long createdBy;
 
-    @Getter @Setter
+
     @Column(name="updated_at")
     @UpdateTimestamp
     private LocalDateTime updatedAt;
