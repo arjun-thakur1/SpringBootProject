@@ -1,5 +1,0 @@
-
-t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(³ò¹úÿÿÿÿ
-z
-java:S1128"]Remove this unused import 'work1.project1.package1.dto.response.EmployeeCompleteGetResponse'.(ıÈ¯Ú8÷•ï½.
-l	java:S117#"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ˆ„Ï8Çôß†¾.

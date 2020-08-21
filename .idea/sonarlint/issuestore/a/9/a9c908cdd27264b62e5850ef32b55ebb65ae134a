@@ -1,8 +1,0 @@
-
-8
-java:S3626"Remove this redundant jump.(ûÁİ…8·»ú¿.
-k
-java:S1128"IRemove this unused import 'work1.project1.package1.other.TokenGenerator'.(‰ˆã›ıÿÿÿÿ8¤Ö‡‘¿.
-o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(ÅäÏÒ
-Q
-java:S1128"/Remove this unused import 'java.util.Optional'.(¨˜ëİüÿÿÿÿ8ä×Ô˜½.
