@@ -21,4 +21,8 @@ public interface CompanyDepartmentMappingRepository extends JpaRepository<Compan
     CompanyDepartmentMappingEntity findByIdAndIsActive(Long mappingId, boolean b);
 
     List<CompanyDepartmentMappingEntity> findByDepartmentId(Long departmentId);
+
+    @Query(nativeQuery = true , value = "select * from company_department_mapping_entity as cd where is_active=?2 and id in" +
+            " (select company_department_id from department_employee_mapping where employee_id=?1 and is_active=?2 )")
+    CompanyDepartmentMappingEntity findCompanyDepartmentQuery(Long userId, boolean b);
 }

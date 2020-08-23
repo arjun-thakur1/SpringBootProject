@@ -50,8 +50,7 @@ public class KafkaConsumer {
         employeeService.addEmployee(employeeAddRequest,0L);
         return;
     }
-
-
+    
 
 }
 

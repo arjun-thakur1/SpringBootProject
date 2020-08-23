@@ -6,8 +6,12 @@ import work1.project1.package1.entity.CompanyDepartmentMappingEntity;
 import work1.project1.package1.entity.EmployeeEntity;
 import work1.project1.package1.entity.UserEntity;
 import work1.project1.package1.exception.CustomException;
+import work1.project1.package1.exception.NotPresentException;
 import work1.project1.package1.exception.UnAuthorizedUser;
 import work1.project1.package1.myenum.MyEnum;
+import work1.project1.package1.other.FindIdsFromToken;
+import work1.project1.package1.other.Ids;
+import work1.project1.package1.other.TokenGenerator;
 import work1.project1.package1.repository.CompanyDepartmentMappingRepository;
 import work1.project1.package1.repository.EmployeeRepository;
 import work1.project1.package1.repository.UserRepository;
@@ -25,97 +29,53 @@ public class AuthorizationService {
        @Autowired
        EmployeeRepository employeeRepository;
        @Autowired
+       CompanyDepartmentMappingRepository cdMappingRepository;
+       @Autowired
        EmployeeMappingService employeeMappingService;
 
-       public void isAccessOfAll(Long userId, String password) throws CustomException, UnAuthorizedUser {
-          if(userId==1 && password.equalsIgnoreCase(ADMIN))
-             return ;
-          throw  new UnAuthorizedUser(" Authorization Failed!! ");
-       }
+       FindIdsFromToken findIdsFromToken=new FindIdsFromToken();
 
 
-        public void isAccessOfCompany(Long userId,String password, Long companyId ) throws UnAuthorizedUser {
-            if(userId==1 && password.equalsIgnoreCase(ADMIN))
-                return ;
-            CompanyDepartmentMappingEntity mappingEntity=employeeMappingService.getIds(userId);
-            if((mappingEntity==null) || !(mappingEntity.getCompanyId().equals(companyId)))
-                throw  new UnAuthorizedUser(" Authorization Failed !!. ");
-            UserEntity userEntity=userRepository.findByUserId(userId);
-            if(userEntity==null )
-                throw  new UnAuthorizedUser(" Authorization Failed!! unauthorized user!! ");
-            MyEnum saved_role=getRole(userId);
-            if(userEntity.get_password().equals(password) && (saved_role==MyEnum.ceo || saved_role==MyEnum.CEO) )
-                return ;
-            throw  new UnAuthorizedUser(" Authorization Failed!! ");
-        }
+    //please save enum in database that r lowercase none,employee,ceo,hod ,, addEmployee(),updateEmployee()
+    public Long isAccessOfCompanyDepartment(String token , Long companyId , Long departmentId) throws UnAuthorizedUser {
+        Ids ids=findIdsFromToken.findCompanyDepartmentEmployeeIdFromToken(token);
+        EmployeeEntity employeeEntity=employeeRepository.findById(ids.getEmployeeId()).orElse(null);
+        if((employeeEntity.getDesignation().equals(MyEnum.ceo) && ids.getCompanyId().equals(companyId)) || (employeeEntity
+                .getDesignation().equals(MyEnum.hod) && ids.getCompanyId().equals(companyId) && ids.getDepartmentId()
+                .equals(departmentId)))
+            return (ids.getEmployeeId());
+        throw new UnAuthorizedUser(" user is not authorized!! ");
+    }
+    //deleteEmployee
+    public Long isAccessOfCompanyDepartment(String token , Long employeeId) throws UnAuthorizedUser, NotPresentException {
+        Ids ids=findIdsFromToken.findCompanyDepartmentEmployeeIdFromToken(token);
+        CompanyDepartmentMappingEntity cdMappingEntity=employeeMappingService.getIds(employeeId);
+        if(cdMappingEntity==null)
+            throw new NotPresentException(" employee is not part of any company-department!! ");
+        EmployeeEntity employeeEntity=employeeRepository.findById(ids.getEmployeeId()).orElse(null);
+        if((employeeEntity.getDesignation().equals(MyEnum.ceo) && ids.getCompanyId().equals(cdMappingEntity.getCompanyId())) || (employeeEntity
+                .getDesignation().equals(MyEnum.hod) && ids.getCompanyId().equals(cdMappingEntity.getCompanyId()) && ids.getDepartmentId()
+                .equals(cdMappingEntity.getDepartmentId())))
+            return ids.getEmployeeId();
+        throw new UnAuthorizedUser(" user is not authorized!! ");
+    }
 
-
-      public void isAccessOfDepartment(Long userId, String password,Long companyId,Long departmentId) throws UnAuthorizedUser {
-        if(userId==1 && password.equalsIgnoreCase(ADMIN))
-            return ;
-        UserEntity userEntity=userRepository.findByUserId(userId);
-        if(userEntity==null )
-            throw  new UnAuthorizedUser(" Authorization Failed!! unauthorized user!! ");
-        MyEnum saved_role=getRole(userId);
-        CompanyDepartmentMappingEntity mappingEntity=employeeMappingService.getIds(userId);
-        if(mappingEntity==null ||  (!mappingEntity.getCompanyId().equals(companyId)) )  //if ceo then only company match
-            throw  new UnAuthorizedUser(" Authorization Failed!!. ");
-        if((saved_role==MyEnum.ceo || saved_role==MyEnum.CEO || ( (saved_role==MyEnum.HOD || saved_role==MyEnum.hod) &&
-                mappingEntity.getDepartmentId().equals(departmentId))) && userEntity.get_password().equals(password))
-            return ;
-        throw  new UnAuthorizedUser(" Authorization Failed!! ");
-      }
-
-      public void isAccessOfDepartment(Long userId,String password , Long employeeId) throws UnAuthorizedUser {
-          if(userId==1 && password.equalsIgnoreCase(ADMIN))
-              return ;
-          CompanyDepartmentMappingEntity mappingEntity=employeeMappingService.getIds(employeeId);
-          if(mappingEntity!=null){
-               isAccessOfDepartment(userId,password,mappingEntity.getCompanyId(),mappingEntity.getDepartmentId());
-               return;
-          }
-          throw new UnAuthorizedUser(FAILED + " user is not part of any company!! ");
-      }
-
-      public void isAccessOfUpdateEmployee(Long userId,String password,Long employeeId) throws UnAuthorizedUser {
-           if(userId==1 && password.equalsIgnoreCase(ADMIN))
-               return ;
-           UserEntity userEntity=userRepository.findByUserId(userId);
-           if(userEntity==null )
-               throw  new UnAuthorizedUser(" Authorization Failed!! unauthorized user!! ");
-           Optional<EmployeeEntity> fetchedEmployeeEntity=employeeRepository.findById(employeeId);
-           if(fetchedEmployeeEntity.isPresent()) {
-               EmployeeEntity employeeEntity = fetchedEmployeeEntity.get();
-               MyEnum saved_role=employeeEntity.getDesignation();
-               CompanyDepartmentMappingEntity mappingEntity = employeeMappingService.getIds(employeeId);
-               if (saved_role==MyEnum.ceo || saved_role==MyEnum.CEO)
-                   isAccessOfCompany(userId, password, mappingEntity.getCompanyId());
-               if (saved_role==MyEnum.HOD || saved_role==MyEnum.hod)
-                   isAccessOfDepartment(userId, password, mappingEntity.getCompanyId(), mappingEntity.getDepartmentId());
-               if (userEntity.get_password().equals(password) && (saved_role==MyEnum.employee || saved_role==MyEnum.employee)
-                       && userId.equals(employeeId)) //emp can update only itself info
-                   return ;
-           }
-           throw  new UnAuthorizedUser(" Authorization Failed!! ");
-      }
-
-       public void isAccessOfGetEmployee(Long userId, String password) throws UnAuthorizedUser {
-           if(userId==1 && password.equalsIgnoreCase(ADMIN))
-               return ;
-           UserEntity userEntity=userRepository.findByUserId(userId);
-           if(userEntity==null)
-               throw  new UnAuthorizedUser(" Authorization Failed!! unauthorized user!! ");
-           Optional<EmployeeEntity> fetchedEmployeeEntity=employeeRepository.findById(userId);
-           if(fetchedEmployeeEntity.isPresent()) {
-               EmployeeEntity employeeEntity = fetchedEmployeeEntity.get();
-               MyEnum saved_role=employeeEntity.getDesignation();
-               if((saved_role==MyEnum.ceo || saved_role==MyEnum.CEO||saved_role==MyEnum.HOD || saved_role==MyEnum.hod||
-                       saved_role==MyEnum.employee || saved_role==MyEnum.employee) && userEntity.get_password().equals(password))
-                   return;
-           }
-           throw  new UnAuthorizedUser(" Authorization Failed!! ");
-       }
-
+    public boolean isAccessOfGetEmployee(String token , Long employeeId){
+        Ids ids=findIdsFromToken.findCompanyDepartmentEmployeeIdFromToken(token);
+        if(employeeId.equals(ids.getEmployeeId()))
+            return true;
+        else
+            return false;
+    }
+    //department_entity_table
+    public void isAccessOfDepartmentTable(String token,Long departmentId) throws UnAuthorizedUser {
+        Ids ids=findIdsFromToken.findCompanyDepartmentEmployeeIdFromToken(token);
+        EmployeeEntity employeeEntity=employeeRepository.findById(ids.getEmployeeId()).orElse(null);
+        if(employeeEntity!=null && (employeeEntity.getDesignation().equals(MyEnum.ceo) || (employeeEntity.getDesignation().equals(MyEnum.hod)
+           && ids.getDepartmentId().equals(departmentId)) ))
+                return;
+        throw new UnAuthorizedUser(" user is not authorized!! ");
+    }
     private MyEnum getRole(Long employeeId) {
         Optional<EmployeeEntity> fetchedEmployeeEntity=employeeRepository.findById(employeeId);
         if(fetchedEmployeeEntity.isPresent()) {
@@ -124,52 +84,5 @@ public class AuthorizationService {
         }
         return null;
     }
-
-    public void isAccessOfAnyDepartment(Long userId, String password) throws UnAuthorizedUser {
-        if(userId==1 && password.equalsIgnoreCase(ADMIN))
-            return ;
-        UserEntity userEntity=userRepository.findByUserId(userId);
-        if(userEntity==null )
-            throw  new UnAuthorizedUser(" Authorization Failed!! unauthorized user!! ");
-        MyEnum saved_role=getRole(userId);
-        if((saved_role==MyEnum.ceo || saved_role==MyEnum.CEO || saved_role==MyEnum.HOD || saved_role==MyEnum.hod)  &&
-                userEntity.get_password().equals(password))
-            return ;
-        throw new UnAuthorizedUser(" Authorization Failed!! ");
-    }
-
-    public void isAccessOfCompany(Long userId, String password) throws UnAuthorizedUser {
-        if(userId==1 && password.equalsIgnoreCase(ADMIN))
-            return ;
-        CompanyDepartmentMappingEntity mappingEntity=employeeMappingService.getIds(userId);
-        if(mappingEntity==null)
-            throw  new UnAuthorizedUser(" Authorization Failed!! ");
-        isAccessOfCompany(userId,password,mappingEntity.getCompanyId());
-        return;
-    }
-
-    public void isAccessOfAnyCompany(Long userId , String password) throws  UnAuthorizedUser {
-        if(userId==1 && password.equalsIgnoreCase(ADMIN))
-            return ;
-        UserEntity userEntity=userRepository.findByUserId(userId);
-        if(userEntity==null )
-            throw  new UnAuthorizedUser(" Authorization Failed!! unauthorized user!! ");
-        MyEnum saved_role=getRole(userId);
-        if((saved_role==MyEnum.ceo || saved_role==MyEnum.CEO) && userEntity.get_password().equals(password))
-        return ;
-        throw new UnAuthorizedUser(" Authorization Failed!! ");
-    }
-
-    public void isAccessOfUserData(Long userId, String password, Long id) throws UnAuthorizedUser {
-        if(userId==1 && password.equalsIgnoreCase(ADMIN))
-            return ;
-        UserEntity userEntity=userRepository.findByUserId(userId);
-        if(!userId.equals(id) || userEntity==null)
-            throw  new UnAuthorizedUser(" Authorization Failed!! ");
-        if(userEntity.get_password().equalsIgnoreCase(password))
-            return;
-        throw  new UnAuthorizedUser(" Authorization Failed!! Password Incorrect!!");
-    }
-
 
 }

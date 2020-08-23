@@ -155,12 +155,12 @@ public class DepartmentService {
         if(companyDepartmentMappingEntity==null)
             throw new ResponseHttp(HttpStatus.NOT_FOUND,DEPARTMENT_NOT_PRESENT);
         redisService.deleteTokensOfEmployeesOfDepartment(companyId,departmentId);
-      //  System.out.println(MyEnum.none +" .. " );
         employeeRepository.deleteEmployeesOfDepartment(MyEnum.none,-1L,-1L,companyId,departmentId,true,false);
         employeeRepository.deleteEmployeeDepartmentMapping(companyId,departmentId,true,false);
         companyDepartmentMappingEntity.setActive(false);
         caching.deleteDepartmentsOfCompany(companyId);
         companyDepartmentMappingRepository.save(companyDepartmentMappingEntity);
+        //employeeMappingRepository.deleteDepartmentQuery(companyId,departmentId,true);
         return new Response(200,SUCCESS);
     }
 
