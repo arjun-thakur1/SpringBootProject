@@ -117,57 +117,46 @@ public class EmployeeController {
 
     @PutMapping("/update")
     public ResponseEntity<Response> updateEmployeeGeneralInfo(@Valid @RequestBody EmployeePersonalInfoUpdateRequest updateRequest,
-                                                              @RequestHeader(value = "token",defaultValue = "0")String token) throws ResponseHttp, CustomException, UnAuthorizedUser {
-        //authorizationService.isAccessOfUpdateEmployee(userId,password,updateRequest.getId());
-        boolean isSameEmployee;
-        if(!token.equals(ADMIN))
-            isSameEmployee = authorizationService.isAccessOfGetEmployee(token, updateRequest.getId());
-        else
-            isSameEmployee=true;
-        return new ResponseEntity<>(employeeService.updatePersonalInfo(updateRequest,userId), HttpStatus.OK);
+                                                              @RequestHeader(value = "token",defaultValue = "0")String token)
+            throws ResponseHttp, CustomException, UnAuthorizedUser {
+        if(!token.equals(ADMIN) && !authorizationService.isAccessOfGetEmployee(token, updateRequest.getId()))
+                 throw new UnAuthorizedUser(" user is not Authorized!! ");
+        return new ResponseEntity<>(employeeService.updatePersonalInfo(updateRequest,updateRequest.getId()), HttpStatus.OK);
     }
 
 
     @PutMapping(value = "/update-salary")
     public Object updateSalary(@Valid @RequestBody UpdateSalaryRequest request , @RequestHeader(value = "token",
-            defaultValue = "0")String token) throws CustomException, UnAuthorizedUser {
+            defaultValue = "0")String token) throws CustomException, UnAuthorizedUser, NotPresentException {
         if (!token.equals(ADMIN)) {
-         /*  // only ceo can access this api....do after company api auth done
-            if (request.getEmployeeId() != -1)//want to update emp salary
-                authorizationService.isAccessOfDepartment(userId, password, request.getEmployeeId());
+            if (request.getEmployeeId() != -1)//want to update only emp salary
+                userId=authorizationService.isAccessOfCompanyDepartment( token,request.getEmployeeId());
             else if (request.getDepartmentId() != -1 && request.getCompanyId() != -1)
-                authorizationService.isAccessOfDepartment(userId, password, request.getCompanyId(), request.getDepartmentId());
+                userId=authorizationService.isAccessOfCompanyDepartment( token,request.getCompanyId(), request.getDepartmentId());
             else if (request.getCompanyId() != -1)
-                authorizationService.isAccessOfCompany(userId, password, request.getCompanyId());
+                userId=authorizationService.isAccessOfCompanyDepartment(token, request.getCompanyId(),-1L);
             else
                 throw new CustomException(FAILED + " please enter valid data ");
-          */
         }
-        userId=1L;
+        else
+            userId=1L;
             if (employeeService.updateSalary(request,userId))
                 return new ResponseEntity<>(new Response(200, UPDATE_SUCCESS), HttpStatus.OK);
             throw new CustomException(FAILED);
 
     }
-
-   @PutMapping(value = "/change-password")
+    @PutMapping(value = "/change-password")
     public ResponseEntity<Response> changePassword( @Valid @RequestBody UpdatePasswordRequest updatePasswordRequest ,
                                                     @RequestHeader(value = "token",defaultValue = "0")String token) throws CustomException, UnAuthorizedUser {
-       //authorizationService.isAccessOfUserData(userId,password,updatePasswordRequest.getId());
-       boolean isSameEmployee;
-       if(!token.equals(ADMIN)) {
-           if(!authorizationService.isAccessOfGetEmployee(token, updatePasswordRequest.getId())) //can access by all employee
+       if(!token.equals(ADMIN) && !authorizationService.isAccessOfGetEmployee(token, updatePasswordRequest.getId())) //can access by all employee
                throw new UnAuthorizedUser(" user is not Authorized!! ");
-       }
        return new ResponseEntity<>(userService.changePassword(updatePasswordRequest.getId(),updatePasswordRequest.getNewPassword()),
                HttpStatus.OK);
-   }
-
-
-   @PostMapping(value = "/token-generate")
-   public ResponseEntity<TokenGenerateResponse> tokenGeneration(@RequestHeader(value = "user_id",defaultValue = "0")Long userId,
+    }
+    @PostMapping(value = "/token-generate")
+    public ResponseEntity<TokenGenerateResponse> tokenGeneration(@RequestHeader(value = "user_id",defaultValue = "0")Long userId,
                                  @RequestHeader(value="password",defaultValue = "0")  String password ) throws UnAuthorizedUser {
        return  new ResponseEntity<>(new TokenGenerateResponse(200L,employeeService.tokenGenerate(userId,password)),HttpStatus.OK);
-  }
+    }
 
 }

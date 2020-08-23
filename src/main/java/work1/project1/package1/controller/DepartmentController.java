@@ -23,7 +23,7 @@ import java.util.List;
 import static work1.project1.package1.constants.ApplicationConstants.ADMIN;
 
 @RestController
-@RequestMapping("/department")
+//@RequestMapping("/department")
 @Validated
 public class DepartmentController {
 
@@ -32,6 +32,7 @@ public class DepartmentController {
     @Autowired
     private AuthorizationService authorizationService;
 
+    private Long userId=1L;
     @GetMapping(value = "/department/{departmentId}")
     public ResponseEntity<DepartmentResponse> getDepartmentById(@PathVariable("departmentId") Long departmentId,
                                                                 @RequestHeader(value = "token",defaultValue = "0")String token)
@@ -52,8 +53,8 @@ public class DepartmentController {
                                                             @RequestHeader(value = "token",defaultValue = "0")String token)
             throws CustomException, UnAuthorizedUser {
         if(!token.equals(ADMIN))
-        authorizationService.isAccessOfDepartmentTable(token,-1L);
-        return new ResponseEntity<> (departmentService.addDepartment(requestDepartment,0L),HttpStatus.OK);
+        userId=authorizationService.isAccessOfDepartmentTable(token,-1L);
+        return new ResponseEntity<> (departmentService.addDepartment(requestDepartment,userId),HttpStatus.OK);
     }
     @PutMapping(value = "/department/update-details")
     public ResponseEntity<DepartmentResponse> updateDepartmentDetails(@Valid @RequestBody DepartmentUpdateRequestDto departmentRequestDto,
@@ -62,7 +63,7 @@ public class DepartmentController {
         //authorizationService.isAccessOfAll(userId,password);  //only admin can update
         if(!token.equals(ADMIN))
             throw new UnAuthorizedUser(" user is not authorized!! ");
-        return new ResponseEntity<>(departmentService.updateDetails(departmentRequestDto,0L),HttpStatus.OK);
+        return new ResponseEntity<>(departmentService.updateDetails(departmentRequestDto,userId),HttpStatus.OK);
     }
 
 
@@ -79,8 +80,8 @@ public class DepartmentController {
                                                            @RequestHeader(value = "token",defaultValue = "0")String token)
             throws CustomException, NotPresentException, UnAuthorizedUser { //only ceo so departmentId:0L
         if(!token.equals(ADMIN))
-        authorizationService.isAccessOfCompanyDepartment(token,requestDepartment.getCompanyId(),-1L);
-        return new ResponseEntity<> (departmentService.addDepartmentToCompany(requestDepartment,0L),HttpStatus.OK);
+        userId=authorizationService.isAccessOfCompanyDepartment(token,requestDepartment.getCompanyId(),-1L);
+        return new ResponseEntity<> (departmentService.addDepartmentToCompany(requestDepartment,userId),HttpStatus.OK);
     }
     @GetMapping("/company/{companyId}")
     public ResponseEntity<List<DepartmentResponse>> getAllDepartmentOfCompany(@PathVariable("companyId")Long companyId ,
@@ -96,7 +97,7 @@ public class DepartmentController {
     public ResponseEntity<Response> deleteDepartment(@PathVariable("companyId") Long companyId, @PathVariable("departmentId") Long departmentId,
                                                      @RequestHeader(value = "token",defaultValue = "0")String token) throws ResponseHttp, UnAuthorizedUser {
         if(!token.equals(ADMIN))
-        authorizationService.isAccessOfCompanyDepartment(token,companyId,-1L);
+        userId=authorizationService.isAccessOfCompanyDepartment(token,companyId,-1L);
         return new ResponseEntity<>(departmentService.deleteDepartmentDetails(companyId,departmentId),HttpStatus.OK);
     }
     @GetMapping(value="/company/{companyId}/department/{departmentId}/all-employee", produces = MediaType.APPLICATION_JSON_VALUE)

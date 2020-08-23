@@ -68,12 +68,12 @@ public class AuthorizationService {
             return false;
     }
     //department_entity_table
-    public void isAccessOfDepartmentTable(String token,Long departmentId) throws UnAuthorizedUser {
+    public Long isAccessOfDepartmentTable(String token,Long departmentId) throws UnAuthorizedUser {
         Ids ids=findIdsFromToken.findCompanyDepartmentEmployeeIdFromToken(token);
         EmployeeEntity employeeEntity=employeeRepository.findById(ids.getEmployeeId()).orElse(null);
         if(employeeEntity!=null && (employeeEntity.getDesignation().equals(MyEnum.ceo) || (employeeEntity.getDesignation().equals(MyEnum.hod)
            && ids.getDepartmentId().equals(departmentId)) ))
-                return;
+                return ids.getEmployeeId();
         throw new UnAuthorizedUser(" user is not authorized!! ");
     }
     private MyEnum getRole(Long employeeId) {

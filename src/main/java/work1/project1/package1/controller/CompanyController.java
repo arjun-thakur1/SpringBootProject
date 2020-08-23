@@ -39,9 +39,9 @@ public class CompanyController {
     private DepartmentService departmentService;
     @Autowired
     private EmployeeService employeeService;
-   @Autowired
-   private AuthorizationService authorizationService;
-
+    @Autowired
+    private AuthorizationService authorizationService;
+    Long userId=1L;
 
     @GetMapping(value = "/all" , produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CompanyResponse>> getAllCompanies(@RequestHeader(value = "token",defaultValue = "0")String token,
@@ -55,7 +55,7 @@ public class CompanyController {
     @GetMapping(value="/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CompanyResponse> getCompanyDetailsById(@Valid @PathVariable("id") @NotNull  Long companyId,
                                                                  @RequestHeader(value = "token",defaultValue = "0")String token)
-            throws CustomException, NotPresentException, UnAuthorizedUser {
+            throws  NotPresentException, UnAuthorizedUser {
         if(!token.equals(ADMIN))
             authorizationService.isAccessOfCompanyDepartment(token,companyId,-1L);
         return new ResponseEntity<> (companyService.getCompanyById(companyId),HttpStatus.OK);
@@ -82,9 +82,9 @@ public class CompanyController {
                                                                @RequestHeader(value = "token",defaultValue = "0")String token)
             throws DuplicateDataException, NotPresentException, UnAuthorizedUser {
         if(!token.equals(ADMIN))
-            authorizationService.isAccessOfCompanyDepartment(token,companyUpdateRequestDto.getId(),-1L);
+           userId=authorizationService.isAccessOfCompanyDepartment(token,companyUpdateRequestDto.getId(),-1L);
         return new ResponseEntity<> (companyService.updateDetails(companyUpdateRequestDto.getId(),companyUpdateRequestDto.getCompanyName(),
-                companyUpdateRequestDto.getCeoName(),1L),HttpStatus.OK);
+                companyUpdateRequestDto.getCeoName(),userId),HttpStatus.OK);
     }
 
     @GetMapping (value="/complete-details/{companyId}")
