@@ -23,14 +23,5 @@ public interface EmployeeMappingRepository extends JpaRepository<EmployeeMapping
     public List<EmployeeMappingEntity> FindAllWithDescriptionQuery();
 
     boolean existsByEmployeeIdAndIsActive(Long employeeId, boolean b);
-
-
-
-    @Modifying
-    @Query(nativeQuery = true,value = " BEGIN TRANSACTION; " +
-            " UPDATE company_department_mapping_entity SET is_active =?3  " +
-            " WHERE company_department_mapping_entity.company_id=?1 AND company_department_mapping_entity.department_id=?2 ; " +
-            "COMMIT; ")
-    public void deleteDepartmentQuery(Long companyId  ,Long departmentId , boolean faalse);
 }
 

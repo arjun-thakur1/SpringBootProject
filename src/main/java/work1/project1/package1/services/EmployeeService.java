@@ -217,7 +217,7 @@ public class EmployeeService {
     }
 
 
-    public boolean updateSalary(UpdateSalaryRequest updateSalaryRequestDto,Long userId) throws CustomException {
+    public boolean updateSalary(UpdateSalaryRequest updateSalaryRequestDto) throws CustomException {
         Long employeeId=updateSalaryRequestDto.getEmployeeId();
         Long departmentId=updateSalaryRequestDto.getDepartmentId();
         Long companyId=updateSalaryRequestDto.getCompanyId();
@@ -228,38 +228,38 @@ public class EmployeeService {
             if(flag<0 || flag>1)
               throw new CustomException(" flag can only be 0 or 1. 0 for % increment & 1 for absolute increment ");
             if (employeeId != -1)
-                return updateEmployeeSalary(employeeId, salary_increment, flag, userId);
+                return updateEmployeeSalary(employeeId, salary_increment, flag);
             if (departmentId != -1 && companyId != -1) {
                 CompanyDepartmentMappingEntity companyDepartmentMappingEntity = companyDepartmentMappingRepository.
                         findByCompanyIdAndDepartmentIdAndIsActive(companyId, departmentId, true);
                 if (companyDepartmentMappingEntity == null)
                     return false;
-                return updateDepartmentSalary(companyDepartmentMappingEntity.getId(), salary_increment, flag,userId);
+                return updateDepartmentSalary(companyDepartmentMappingEntity.getId(), salary_increment, flag);
             }
             if (companyId != -1) {
                 List<CompanyDepartmentMappingEntity> companyDepartmentMappingEntityList = companyDepartmentMappingRepository.
                         findAllByCompanyIdAndIsActive(companyId, true);
                 companyDepartmentMappingEntityList.forEach(d -> {
-                    updateDepartmentSalary(d.getId(), salary_increment, flag,userId);
+                    updateDepartmentSalary(d.getId(), salary_increment, flag);
                 });
                 return true;
             }
         return false;
     }
 
-    private boolean updateDepartmentSalary(Long cd_mappingId,Long salary_increment,Long flag,Long userId) {
+    private boolean updateDepartmentSalary(Long cd_mappingId,Long salary_increment,Long flag) {
 
         List<EmployeeMappingEntity> employeeMappingEntityList=employeeMappingRepository.findByMappingIdAndIsActive
                 (cd_mappingId,true);
         if(employeeMappingEntityList==null )
              return false;
         employeeMappingEntityList.forEach(m->{
-                updateEmployeeSalary(m.getEmployeeId(),salary_increment,flag,userId);
+                updateEmployeeSalary(m.getEmployeeId(),salary_increment,flag);
         });
         return true;
     }
 
-    public boolean updateEmployeeSalary(Long employeeId, Long salary_increment,Long flag,Long userId)  {
+    public boolean updateEmployeeSalary(Long employeeId, Long salary_increment,Long flag)  {
         if (mappingService.getIds(employeeId) == null)
             return false;
         if (flag == 1) {  //increment by absolute value
@@ -270,7 +270,6 @@ public class EmployeeService {
                 employeeEntity.setSalary(employeeEntity.getSalary() + salary_increment);
                 else
                 employeeEntity.setSalary(0L);
-                employeeEntity.setUpdatedBy(userId);
                 employeeRepository.save(employeeEntity);
                 caching.updateEmployeeCache(employeeId, employeeEntity);
                 System.out.println(employeeEntity + "    ");
@@ -283,7 +282,6 @@ public class EmployeeService {
                 EmployeeEntity employeeEntity = fetchedEmployeeEntity.get();
                 Long salary = employeeEntity.getSalary();
                 employeeEntity.setSalary(salary + ((salary * salary_increment) / 100));
-                employeeEntity.setUpdatedBy(userId);
                 employeeRepository.save(employeeEntity);
                 caching.updateEmployeeCache(employeeId, employeeEntity);
                 System.out.println(employeeEntity + "    ");

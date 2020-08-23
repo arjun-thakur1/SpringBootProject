@@ -140,7 +140,7 @@ public class EmployeeController {
         }
         else
             userId=1L;
-            if (employeeService.updateSalary(request,userId))
+            if (employeeService.updateSalary(request))
                 return new ResponseEntity<>(new Response(200, UPDATE_SUCCESS), HttpStatus.OK);
             throw new CustomException(FAILED);
 
