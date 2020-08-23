@@ -40,4 +40,10 @@ public class UserService {
         return new Response(200,SUCCESS);
     }
 
+    public boolean isValidCredentials(Long userId, String password) {
+       UserEntity userEntity=userRepository.findByUserId(userId);
+       if(userEntity==null || !userEntity.get_password().equals(password))
+           return false;
+       return true;
+    }
 }

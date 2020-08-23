@@ -42,8 +42,7 @@ public class EmployeeMappingService {
             throw new ResponseHttp(HttpStatus.NOT_FOUND," company-department not present!! ");
         Long companyDepartmentMappingId=companyDepartmentMappingEntity.getId();
         EmployeeMappingEntity activeEmployeeMappingEntity= employeeMappingRepository.findByEmployeeIdAndIsActive(employeeId,true);
-        if(activeEmployeeMappingEntity!=null)
-        {
+        if(activeEmployeeMappingEntity!=null) {
             throw new ResponseHttp(HttpStatus.BAD_REQUEST," Employee already part of another company-department !! ");
         }
          EmployeeMappingEntity employeeMappingEntity=employeeMappingRepository.findByEmployeeIdAndMappingId(employeeId,

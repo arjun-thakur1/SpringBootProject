@@ -20,14 +20,23 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws UnAuthorizedUser {
 
-        String  token = request.getHeader("token");
-        if(token.equals("admin"))
-            return true;
-        token="access_token::"+token;
-        String isPresent=redisService.getKeyValue(token);
-        System.out.println(isPresent+"     ....");
-        if(isPresent==null)
-            throw new UnAuthorizedUser("Invalid AccessToken!! ");
+        //if request url is for
+        String url=request.getRequestURL().toString();
+        String sub_url=url.substring(21);
+      //  System.out.println(sub_url);
+        if(!sub_url.equals("/employee/token-generate")) {
+            String token = request.getHeader("token");
+            if (token.equals("admin"))
+                return true;
+            token = "access_token::" + token;
+            String isPresent = redisService.getKeyValue(token);
+          //  System.out.println(isPresent + "     ....");
+            if (isPresent == null)
+                throw new UnAuthorizedUser("Invalid AccessToken!! ");
+           // request.setAttribute("userId" , token.substring(47));
+
+            //System.out.println(token.substring(47));
+        }
         return true;
     }
 }

@@ -20,41 +20,49 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+import static work1.project1.package1.constants.ApplicationConstants.ADMIN;
+
 @RestController
-@RequestMapping("/department")
+//@RequestMapping("/department")
 @Validated
 public class DepartmentController {
 
     @Autowired
     private DepartmentService departmentService;
-
     @Autowired
     private AuthorizationService authorizationService;
 
-    @GetMapping(value = "/{departmentId}")
-    public ResponseEntity<DepartmentResponse> getDepartmentById(@PathVariable("departmentId") Long departmentId,@RequestHeader(value = "user_id",defaultValue = "0")Long userId,
-                                    @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, UnAuthorizedUser {
-        authorizationService.isAccessOfAnyDepartment(userId,password); //any hod , ceo can access
+    private Long userId=1L;
+    @GetMapping(value = "/department/{departmentId}")
+    public ResponseEntity<DepartmentResponse> getDepartmentById(@PathVariable("departmentId") Long departmentId,
+                                                                @RequestHeader(value = "token",defaultValue = "0")String token)
+            throws CustomException, UnAuthorizedUser {
+        if(!token.equals(ADMIN))
+        authorizationService.isAccessOfDepartmentTable(token,departmentId); // hod,ceo can access
         return new ResponseEntity<> (departmentService.getDepartmentDetail(departmentId),HttpStatus.OK);
     }
-
-    @GetMapping(value = "/all")
-    public ResponseEntity<List<DepartmentResponse>> getAllDepartments(@RequestHeader(value = "user_id",defaultValue = "0")Long userId,
-                                                                    @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, UnAuthorizedUser {
-        authorizationService.isAccessOfAnyCompany(userId,password);
+    @GetMapping(value = "/department/all")
+    public ResponseEntity<List<DepartmentResponse>> getAllDepartments(@RequestHeader(value = "token",defaultValue = "0")
+                                                                      String token) throws CustomException, UnAuthorizedUser {
+        if(!token.equals(ADMIN))
+            authorizationService.isAccessOfDepartmentTable(token,-1L);
         return new ResponseEntity<> (departmentService.getAllDepartments(),HttpStatus.OK);
     }
-    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DepartmentResponse> addDepartment(@Valid @RequestBody DepartmentAddRequest requestDepartment, @RequestHeader(value = "user_id",defaultValue = "0")Long userId,
-                                @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, UnAuthorizedUser {
-        authorizationService.isAccessOfAnyCompany(userId,password);
+    @PostMapping(value = "/department", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DepartmentResponse> addDepartment(@Valid @RequestBody DepartmentAddRequest requestDepartment,
+                                                            @RequestHeader(value = "token",defaultValue = "0")String token)
+            throws CustomException, UnAuthorizedUser {
+        if(!token.equals(ADMIN))
+        userId=authorizationService.isAccessOfDepartmentTable(token,-1L);
         return new ResponseEntity<> (departmentService.addDepartment(requestDepartment,userId),HttpStatus.OK);
     }
-
-    @PutMapping(value = "/update-details")
-    public ResponseEntity<DepartmentResponse> updateDepartmentDetails(@Valid @RequestBody DepartmentUpdateRequestDto departmentRequestDto, @RequestHeader(value = "user_id",defaultValue = "0")Long userId,
-                                                                      @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, NotPresentException, UnAuthorizedUser {
-        authorizationService.isAccessOfAll(userId,password); //or ceo...
+    @PutMapping(value = "/department/update-details")
+    public ResponseEntity<DepartmentResponse> updateDepartmentDetails(@Valid @RequestBody DepartmentUpdateRequestDto departmentRequestDto,
+                                                                      @RequestHeader(value = "token",defaultValue = "0")String token  )
+            throws CustomException, NotPresentException, UnAuthorizedUser {
+        //authorizationService.isAccessOfAll(userId,password);  //only admin can update
+        if(!token.equals(ADMIN))
+            throw new UnAuthorizedUser(" user is not authorized!! ");
         return new ResponseEntity<>(departmentService.updateDetails(departmentRequestDto,userId),HttpStatus.OK);
     }
 
@@ -62,42 +70,41 @@ public class DepartmentController {
 
     @GetMapping(value = "/company/{companyId}/department/{departmentId}")
     public ResponseEntity<DepartmentCompanyResponse> getDepartmentOfCompany(@PathVariable("companyId") Long companyId, @PathVariable("departmentId") Long departmentId,
-                                         @RequestHeader(value = "user_id",defaultValue = "0")Long userId,
-                                         @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, NotPresentException, UnAuthorizedUser {
-        authorizationService.isAccessOfDepartment(userId,password,companyId,departmentId);
+                                                                            @RequestHeader(value = "token",defaultValue = "0")String token ) throws CustomException, NotPresentException, UnAuthorizedUser {
+        if(!token.equals(ADMIN))
+        authorizationService.isAccessOfCompanyDepartment(token,companyId,departmentId);
         return new ResponseEntity<> (departmentService.getDepartmentOfCompany(companyId,departmentId),HttpStatus.OK);
     }
-
     @PostMapping(value = "/add-dept-to-company", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Response> addDepartmentToCompany(@Valid @RequestBody DepartmentCompanyAddRequest requestDepartment, @RequestHeader(value = "user_id",defaultValue = "0")Long userId,
-                                       @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, NotPresentException, UnAuthorizedUser {
-        authorizationService.isAccessOfCompany(userId,password,requestDepartment.getCompanyId());
+    public ResponseEntity<Response> addDepartmentToCompany(@Valid @RequestBody DepartmentCompanyAddRequest requestDepartment,
+                                                           @RequestHeader(value = "token",defaultValue = "0")String token)
+            throws CustomException, NotPresentException, UnAuthorizedUser { //only ceo so departmentId:0L
+        if(!token.equals(ADMIN))
+        userId=authorizationService.isAccessOfCompanyDepartment(token,requestDepartment.getCompanyId(),-1L);
         return new ResponseEntity<> (departmentService.addDepartmentToCompany(requestDepartment,userId),HttpStatus.OK);
     }
-
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<List<DepartmentResponse>> getAllDepartmentOfCompany(@PathVariable("companyId")Long companyId , @RequestHeader(value = "user_id",defaultValue = "0")Long userId,
-                                                              @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, NotPresentException, UnAuthorizedUser {
-        authorizationService.isAccessOfCompany(userId,password,companyId);
+    public ResponseEntity<List<DepartmentResponse>> getAllDepartmentOfCompany(@PathVariable("companyId")Long companyId ,
+                                                                              @RequestHeader(value = "token",defaultValue = "0")String token)
+            throws CustomException, NotPresentException, UnAuthorizedUser {
+        if(!token.equals(ADMIN))
+        authorizationService.isAccessOfCompanyDepartment(token,companyId,-1L);
         return new ResponseEntity<> (departmentService.getAllDepartmentsOfCompany(companyId),HttpStatus.OK);
     }
 
 
-
-
     @DeleteMapping("/company/{companyId}/department/{departmentId}")
     public ResponseEntity<Response> deleteDepartment(@PathVariable("companyId") Long companyId, @PathVariable("departmentId") Long departmentId,
-                                                     @RequestHeader(value = "user_id",defaultValue = "0")Long userId,
-                                                     @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, ResponseHttp, UnAuthorizedUser {
-        authorizationService.isAccessOfCompany(userId,password,companyId);
+                                                     @RequestHeader(value = "token",defaultValue = "0")String token) throws ResponseHttp, UnAuthorizedUser {
+        if(!token.equals(ADMIN))
+        userId=authorizationService.isAccessOfCompanyDepartment(token,companyId,-1L);
         return new ResponseEntity<>(departmentService.deleteDepartmentDetails(companyId,departmentId),HttpStatus.OK);
     }
-
     @GetMapping(value="/company/{companyId}/department/{departmentId}/all-employee", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<EmployeeResponse>> getEmployeesOfDepartment(@PathVariable("companyId") Long companyId, @PathVariable("departmentId") Long departmentId,
-                                                         @RequestHeader(value = "user_id",defaultValue = "0")Long userId,
-                                                         @RequestHeader(value="password",defaultValue = "0")String password) throws CustomException, NotPresentException, UnAuthorizedUser {
-        authorizationService.isAccessOfDepartment(userId,password,companyId,departmentId);
+                                                         @RequestHeader(value = "token",defaultValue = "0")String token) throws CustomException, NotPresentException, UnAuthorizedUser {
+        if(!token.equals(ADMIN))
+        authorizationService.isAccessOfCompanyDepartment(token,companyId,departmentId);
         return new ResponseEntity<>(departmentService.getAllEmployeeOfDepartment(companyId,departmentId),HttpStatus.OK);
     }
 

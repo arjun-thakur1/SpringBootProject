@@ -25,7 +25,7 @@ public class EmployeeUpdateRequest {
     @Builder.Default @Positive
     @Getter @Setter private Long salary= Long.valueOf(1);
 
-    @Builder.Default
+    @Builder.Default //@Positive
     @Getter @Setter private Long  managerId= Long.valueOf(-1);
 
     @Builder.Default

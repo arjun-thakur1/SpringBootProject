@@ -53,7 +53,6 @@ public class MyExceptionHandler  extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers, HttpStatus status, WebRequest request) {
-
          ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), "Validation Failed","Please Enter all required data ");
          return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
