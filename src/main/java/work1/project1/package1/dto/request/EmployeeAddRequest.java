@@ -50,5 +50,12 @@ public class EmployeeAddRequest {
         this.companyId=companyId;
         this.departmentId=departmentId;
     }
+    public  EmployeeAddRequest(String name,String phone,Long salary,Long managerId,MyEnum designation){
+        this.name=name;
+        this.phone=phone;
+        this.salary=salary;
+        this.managerId=managerId;
+        this.designation=designation;
 
+    }
 }

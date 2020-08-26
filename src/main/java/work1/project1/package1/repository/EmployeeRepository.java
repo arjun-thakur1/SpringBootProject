@@ -21,7 +21,7 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Long> 
     boolean existsById(Long managerId);
 
     //Page<EmployeeEntity> findAll(Pageable pageable);
-
+/*
     @Modifying
     @Query(nativeQuery = true, value = "update department_employee_mapping set is_active=?4 from department_employee_mapping as de where " +
                      " de.company_department_id in  ( select cd.id from company_department_mapping_entity as cd " +
@@ -35,7 +35,7 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Long> 
             " ( select cd.id from company_department_mapping_entity as cd " +
             " where cd.company_id=?4 and cd.department_id=?5 and cd.is_active=?6 ) )" )
     void deleteEmployeesOfDepartment(MyEnum val, Long managerId, Long salary, Long companyId, Long departmentId, boolean tru, boolean fal);
-
+*/
 
 
     @Query(nativeQuery = true, value = " select * from employee as e where e.id in " +

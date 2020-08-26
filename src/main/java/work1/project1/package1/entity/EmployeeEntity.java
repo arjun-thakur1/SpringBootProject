@@ -73,4 +73,12 @@ public class EmployeeEntity  implements Serializable {
         this.createdBy=createdBy;
         this.updatedBy=updatedBy;
     }
+    public EmployeeEntity(Long id,String name, String  phone,Long salary,Long managerId,MyEnum designation){
+        this.id=id;
+        this.name=name;
+        this.phone=phone;
+        this.salary=salary;
+        this.managerId=managerId;
+        this.designation=designation;
+    }
 }

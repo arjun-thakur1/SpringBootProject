@@ -8,12 +8,12 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DepartmentUpdateRequestDto {
+public class DepartmentUpdateRequest {
 
     @NotNull
-    @Getter @Setter private Long departmentId;
+    private Long departmentId;
 
     @NotNull
-    @Getter @Setter private String departmentName;
+    private String departmentName;
 
 }

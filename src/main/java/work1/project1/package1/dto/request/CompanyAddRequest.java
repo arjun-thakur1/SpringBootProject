@@ -14,9 +14,8 @@ public class CompanyAddRequest implements Serializable {
 
     @NotNull(message = " company name must not be null!! ")
     @NotEmpty
-    @Getter @Setter private String companyName;
+    private String companyName;
 
     @Builder.Default
-    @Getter @Setter private String ceoName=null;
-
+    private String ceoName=null;
 }

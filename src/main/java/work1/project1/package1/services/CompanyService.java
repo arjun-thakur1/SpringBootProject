@@ -56,24 +56,25 @@ public class CompanyService {
     Caching caching;
 
     public List<CompanyResponse> getAll(int page,int size) throws NotPresentException {
-        Pageable pageable= PageRequest.of(page,size);
+       Pageable pageable= PageRequest.of(page,size);
        Page<CompanyEntity> pageCompanyEntityList= companyRepository.findAllByIsActive(true,pageable);
-       List<CompanyEntity> companyEntityList=pageCompanyEntityList.getContent();
-       if(!companyEntityList.isEmpty()) {
-           List<CompanyResponse> companyResponseList=new ArrayList<>();
-           companyEntityList.forEach((c)->{
-               companyResponseList.add(modelMapper.map(c,CompanyResponse.class));
-           });
-           return  companyResponseList;
+       if(pageCompanyEntityList!=null) {
+           List<CompanyEntity> companyEntityList = pageCompanyEntityList.getContent();
+           if (!companyEntityList.isEmpty()) {
+               List<CompanyResponse> companyResponseList = new ArrayList<>();
+               companyEntityList.forEach((c) -> {
+                   companyResponseList.add(modelMapper.map(c, CompanyResponse.class));
+               });
+               return companyResponseList;
+           }
        }
        throw new NotPresentException(NOT_PRESENT);
-
     }
 
     public CompanyResponse getCompanyById(Long id) throws NotPresentException {
-        CompanyEntity companyEntity=companyRepository.findQuery(id,true);
+        CompanyEntity companyEntity=companyRepository.findByIdAndIsActive(id,true)  ; //findQuery(id,true);
              if(companyEntity!=null) {
-            return  modelMapper.map(companyEntity,CompanyResponse.class);
+             return  modelMapper.map(companyEntity,CompanyResponse.class);
         }
         throw new NotPresentException(NOT_PRESENT);
     }
@@ -96,27 +97,17 @@ public class CompanyService {
         }
         else {
            CompanyEntity companyEntity=new CompanyEntity(companyName,ceoName,userId,-1,true);
-           this.companyRepository.save(companyEntity);
+           companyRepository.save(companyEntity);
            return modelMapper.map(companyEntity, CompanyResponse.class);
         }
     }
 
-    public CompanyDeleteResponse deleteCompanyDetails(Long companyId) throws NotPresentException {
-        CompanyEntity companyEntity=companyRepository.findByIdAndIsActive(companyId,true);
-        if(companyEntity!=null) {
-            companyEntity.setActive(false);
-            companyRepository.save(companyEntity);
-            List<CompanyDepartmentMappingEntity> companyDepartmentMappingEntityList=mappingRepository.
-                    findAllByCompanyIdAndIsActive(companyId,true);
-            companyDepartmentMappingEntityList.forEach((d)->{
-                try {
-                    departmentService.deleteDepartmentDetails(companyId,d.getDepartmentId());
-                } catch (ResponseHttp responseHttp) {
-                    responseHttp.printStackTrace();
-                }
-            });
+    public Response deleteCompanyDetails(Long companyId) throws NotPresentException {
+      //  CompanyEntity companyEntity=companyRepository.findByIdAndIsActive(companyId,true);
+        if(companyRepository.existsByIdAndIsActive(companyId,true)) {
+            companyRepository.deleteCompanyQuery(companyId , true,false ,"none" ,-1L,-1L );
             caching.deleteDepartmentsOfCompany(companyId);
-            return  new CompanyDeleteResponse((long) 200,DELETE_SUCCESS);
+            return  new Response((long) 200,DELETE_SUCCESS);
         }
        throw new NotPresentException(NOT_PRESENT);
     }

@@ -18,7 +18,7 @@ import javax.validation.Valid;
 @Service
 @Validated
 public class KafkaConsumer {
-/*
+
     @Autowired
     EmployeeService employeeService;
     @Autowired
@@ -51,6 +51,5 @@ public class KafkaConsumer {
         return;
     }
 
-*/
 }
 

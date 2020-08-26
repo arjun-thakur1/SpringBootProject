@@ -1,10 +1,10 @@
 package work1.project1.package1.other;
 
-public class FindIdsFromToken {
+public class TokenIds {
 
-    public Ids findCompanyDepartmentEmployeeIdFromToken(String token) {
+    public CompanyDepartmentEmployeeIds findCompanyDepartmentEmployeeIdFromToken(String token) {
 
-        Ids ids=new Ids();
+        CompanyDepartmentEmployeeIds ids=new CompanyDepartmentEmployeeIds();
         int lastIndex=token.lastIndexOf('-');
         ids.setEmployeeId(Long.valueOf(token.substring(lastIndex+1)));
 

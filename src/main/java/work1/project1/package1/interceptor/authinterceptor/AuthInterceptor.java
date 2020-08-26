@@ -26,7 +26,7 @@ public class AuthInterceptor implements HandlerInterceptor {
       //  System.out.println(sub_url);
         if(!sub_url.equals("/employee/token-generate")) {
             String token = request.getHeader("token");
-            if (token.equals("admin"))
+            if ("admin".equals(token))
                 return true;
             token = "access_token::" + token;
             String isPresent = redisService.getKeyValue(token);

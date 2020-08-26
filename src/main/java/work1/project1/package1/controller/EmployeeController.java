@@ -40,25 +40,23 @@ public class EmployeeController {
     UserService userService;
     @Autowired
     ModelMapper modelMapper;
-    Long userId;
+    Long updatedBy=1L;
 
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> addEmployeeDetails(@Valid @RequestBody EmployeeAddRequest employeeAddRequestDto ,
-                                                     @RequestHeader(value = "token",defaultValue = "0")String token) throws CustomException,
+                                                     @RequestHeader(value = "token")String token) throws CustomException,
             NotPresentException, UnAuthorizedUser {
-        if(!token.equals(ADMIN))
-            userId=  authorizationService.isAccessOfCompanyDepartment(token, employeeAddRequestDto.getCompanyId(), employeeAddRequestDto.getDepartmentId());
-        else
-            userId=1L;
-        return new ResponseEntity<>(employeeService.addEmployee(employeeAddRequestDto,userId), HttpStatus.OK);
+        if(!ADMIN.equals(token))
+            updatedBy =  authorizationService.isAccessOfCompanyDepartment(token, employeeAddRequestDto.getCompanyId(), employeeAddRequestDto.getDepartmentId());
+        return new ResponseEntity<>(employeeService.addEmployee(employeeAddRequestDto, updatedBy), HttpStatus.OK);
     }
 
 
     @GetMapping(value="/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getEmployeeById(@PathVariable("id") Long id,
-          @RequestHeader(value = "token",defaultValue = "0")String token) throws CustomException {
+          @RequestHeader(value = "token")String token) throws CustomException, NotPresentException {
         boolean isSameEmployee;
-        if(!token.equals(ADMIN))
+        if(!ADMIN.equals(token))
            isSameEmployee = authorizationService.isAccessOfGetEmployee(token, id); //can access by all employee
         else
         isSameEmployee=true;
@@ -70,33 +68,31 @@ public class EmployeeController {
     }
 
     @GetMapping(value="/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<EmployeeGetResponse>> getAllEmployees(@RequestHeader(value = "token",defaultValue = "0")String token,
+    public ResponseEntity<List<EmployeeGetResponse>> getAllEmployees(@RequestHeader(value = "token")String token,
                                                                      @RequestParam(value = "page",defaultValue = "0")int page,
                                                                      @RequestParam(value = "size",defaultValue = "10")int size) throws  NotPresentException, UnAuthorizedUser {
         //authorizationService.isAccessOfAll(userId,password);
-        if(!token.equals(ADMIN))
+        if(!ADMIN.equals(token))
             throw new UnAuthorizedUser(" user is not authorized!! ");
         return new ResponseEntity<>(employeeService.getAllEmployees(page,size) , HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> deleteEmployeeDetails(@PathVariable("id") Long id,@RequestHeader(value = "token",defaultValue = "0")String token)
+    public ResponseEntity<Response> deleteEmployeeDetails(@PathVariable("id") Long id,@RequestHeader(value = "token")String token)
             throws CustomException, NotPresentException, UnAuthorizedUser {
         //authorizationService.isAccessOfDepartment(userId,password,id);
-        if(!token.equals(ADMIN))
-            userId=  authorizationService.isAccessOfCompanyDepartment(token,id);
-        else
-            userId=1L;
-        return new ResponseEntity<>(employeeService.deleteEmployee(id,userId), HttpStatus.OK);
+        if(!ADMIN.equals(token))
+            updatedBy =  authorizationService.isAccessOfCompanyDepartment(token,id);
+        return new ResponseEntity<>(employeeService.deleteEmployee(id, updatedBy), HttpStatus.OK);
     }
 
     @PutMapping("")
-    public ResponseEntity<EmployeeUpdateResponse> updateEmployeeDetails(@Valid @RequestBody EmployeeUpdateRequest requestDto,
-                                                                        @RequestHeader(value = "token",defaultValue = "0")String token)
+    public ResponseEntity<Response> updateEmployeeDetails(@Valid @RequestBody EmployeeUpdateRequest requestDto,
+                                                                        @RequestHeader(value = "token")String token)
             throws CustomException, NotPresentException, ResponseHttp, SuccessException, UnAuthorizedUser {
        // authorizationService.isAccessOfDepartment(userId,password,requestDto.getId());
         //-1,-1 also companyId,departmentId
-        if(!token.equals(ADMIN)) {
+        if(!ADMIN.equals(token)) {
             Long companyId=requestDto.getCompanyId(),departmentId=requestDto.getDepartmentId();
              if(requestDto.getCompanyId()==-1 && requestDto.getDepartmentId()==-1){ //if not add and only update...
                  CompanyDepartmentMappingEntity cdMappingEntity=employeeMappingService.getIds(requestDto.getId());
@@ -108,47 +104,46 @@ public class EmployeeController {
                  companyId=cdMappingEntity.getCompanyId();
                  departmentId=cdMappingEntity.getDepartmentId();
              }
-             userId = authorizationService.isAccessOfCompanyDepartment(token,companyId ,departmentId );
+             updatedBy = authorizationService.isAccessOfCompanyDepartment(token,companyId ,departmentId );
         }
         else
-            userId=1L;
-        return new ResponseEntity<>(employeeService.updateDetails(requestDto,userId), HttpStatus.OK);
+            updatedBy =1L;
+        return new ResponseEntity<>(employeeService.updateDetails(requestDto, updatedBy), HttpStatus.OK);
     }
 
     @PutMapping("/update")
     public ResponseEntity<Response> updateEmployeeGeneralInfo(@Valid @RequestBody EmployeePersonalInfoUpdateRequest updateRequest,
-                                                              @RequestHeader(value = "token",defaultValue = "0")String token)
-            throws ResponseHttp, CustomException, UnAuthorizedUser {
-        if(!token.equals(ADMIN) && !authorizationService.isAccessOfGetEmployee(token, updateRequest.getId()))
+                                                              @RequestHeader(value = "token")String token)
+            throws ResponseHttp, CustomException, UnAuthorizedUser, NotPresentException {
+        if(!ADMIN.equals(token) && !authorizationService.isAccessOfGetEmployee(token, updateRequest.getId()))
                  throw new UnAuthorizedUser(" user is not Authorized!! ");
         return new ResponseEntity<>(employeeService.updatePersonalInfo(updateRequest,updateRequest.getId()), HttpStatus.OK);
     }
 
 
     @PutMapping(value = "/update-salary")
-    public Object updateSalary(@Valid @RequestBody UpdateSalaryRequest request , @RequestHeader(value = "token",
-            defaultValue = "0")String token) throws CustomException, UnAuthorizedUser, NotPresentException {
+    public ResponseEntity<Response> updateSalary(@Valid @RequestBody UpdateSalaryRequest request,@RequestHeader(value="token")
+            String token) throws CustomException, UnAuthorizedUser, NotPresentException {
         if (!token.equals(ADMIN)) {
             if (request.getEmployeeId() != -1)//want to update only emp salary
-                userId=authorizationService.isAccessOfCompanyDepartment( token,request.getEmployeeId());
+                updatedBy =authorizationService.isAccessOfCompanyDepartment( token,request.getEmployeeId());
             else if (request.getDepartmentId() != -1 && request.getCompanyId() != -1)
-                userId=authorizationService.isAccessOfCompanyDepartment( token,request.getCompanyId(), request.getDepartmentId());
+                updatedBy =authorizationService.isAccessOfCompanyDepartment( token,request.getCompanyId(), request.getDepartmentId());
             else if (request.getCompanyId() != -1)
-                userId=authorizationService.isAccessOfCompanyDepartment(token, request.getCompanyId(),-1L);
+                updatedBy =authorizationService.isAccessOfCompanyDepartment(token, request.getCompanyId(),-1L);
             else
                 throw new CustomException(FAILED + " please enter valid data ");
         }
-        else
-            userId=1L;
-            if (employeeService.updateSalary(request))
+
+        if (employeeService.updateSalary(request))
                 return new ResponseEntity<>(new Response(200, UPDATE_SUCCESS), HttpStatus.OK);
             throw new CustomException(FAILED);
 
     }
     @PutMapping(value = "/change-password")
     public ResponseEntity<Response> changePassword( @Valid @RequestBody UpdatePasswordRequest updatePasswordRequest ,
-                                                    @RequestHeader(value = "token",defaultValue = "0")String token) throws CustomException, UnAuthorizedUser {
-       if(!token.equals(ADMIN) && !authorizationService.isAccessOfGetEmployee(token, updatePasswordRequest.getId())) //can access by all employee
+                                                    @RequestHeader(value = "token")String token) throws CustomException, UnAuthorizedUser {
+       if(!ADMIN.equals(token) && !authorizationService.isAccessOfGetEmployee(token, updatePasswordRequest.getId())) //can access by all employee
                throw new UnAuthorizedUser(" user is not Authorized!! ");
        return new ResponseEntity<>(userService.changePassword(updatePasswordRequest.getId(),updatePasswordRequest.getNewPassword()),
                HttpStatus.OK);

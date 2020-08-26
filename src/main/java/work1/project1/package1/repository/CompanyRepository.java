@@ -1,6 +1,8 @@
 package work1.project1.package1.repository;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 import work1.project1.package1.entity.CompanyDepartmentMappingEntity;
 import work1.project1.package1.entity.CompanyEntity;
 import org.springframework.data.domain.Page;
@@ -27,5 +29,17 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
     @Query(nativeQuery = true,value = "select * from company_entity as c where c.id=?1 and c.is_active=?2 ")
     CompanyEntity findQuery(Long id, boolean b);
 
-
+    @Modifying
+    @Transactional
+    @Query( nativeQuery = true,value = " BEGIN TRANSACTION; " +
+           " UPDATE employee SET designation=?4, manager_id=?5, salary=?6 " +
+           " WHERE id in ( SELECT employee_id FROM department_employee_mapping as de  WHERE is_active=?2 AND company_department_id in ( " +
+            " (SELECT id FROM company_department_mapping_entity as cd WHERE cd.company_id=?1 AND cd.is_active=?2) )); " +
+            " UPDATE department_employee_mapping SET is_active=?3 " +
+            " WHERE company_department_id in (SELECT id FROM company_department_mapping_entity as cd WHERE cd.company_id=?1 AND cd.is_active=?2);" +
+            " UPDATE company_department_mapping_entity SET is_active =?3  " +
+            " WHERE company_department_mapping_entity.company_id=?1 AND company_department_mapping_entity.is_active=?2 ; " +
+            " UPDATE company_entity SET is_active=?3 WHERE company_entity.id=?1 ; " +
+            " COMMIT; ")
+    public void deleteCompanyQuery(Long companyId,boolean truu, boolean faals , String val,Long managerId , Long salary);
 }

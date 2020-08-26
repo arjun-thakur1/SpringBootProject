@@ -48,4 +48,8 @@ public class DepartmentEntity extends CommonFeilds {
         this.updatedBy=updatedBy;
     }
 
+    public DepartmentEntity(Long departmentId, String departmentName) {
+        this.id=departmentId;
+        this.departmentName=departmentName;
+    }
 }

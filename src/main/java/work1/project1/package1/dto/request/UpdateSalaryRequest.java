@@ -22,4 +22,5 @@ public class UpdateSalaryRequest {
     private Long departmentId=Long.valueOf(-1);
     @Builder.Default
     private Long employeeId=Long.valueOf(-1);
+
 }

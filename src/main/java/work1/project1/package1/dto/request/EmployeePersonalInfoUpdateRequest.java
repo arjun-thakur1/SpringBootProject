@@ -7,7 +7,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 @Data
 @AllArgsConstructor
-//@NoArgsConstructor
 public class EmployeePersonalInfoUpdateRequest {
 
     @NotNull //@NotEmpty
