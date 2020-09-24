@@ -49,26 +49,30 @@ public class Caching {
         if(departmentEntityList==null)
             throw new CustomException(FAILED);
         if(departmentEntityList.isEmpty())
-            throw new NotPresentException("Departments "+NOT_PRESENT);
+            throw new NotPresentException("Departments "+NOT_PRESENT+"in a company");
         List<DepartmentResponse> departmentResponses= Arrays.asList(modelMapper.map(departmentEntityList,DepartmentResponse[].class));
         return (Object)departmentResponses;
     }
-
+/*
     public void cacheDepartmentDeleteForCompanies(Long departmentId){
+
+
+
         List<CompanyDepartmentMappingEntity> mappingEntityList= companyDepartmentMappingRepository.findByDepartmentId(departmentId);
-        Set<Long > companyIds=new HashSet<>();
+        Set<Long> companyIds=new HashSet<>();
         mappingEntityList.forEach(m->{
             companyIds.add(m.getCompanyId());
         });
         for( Long companyId : companyIds){
+            System.out.println(companyId);
             deleteDepartmentsOfCompany(companyId);
         }
     }
+*/
     @CacheEvict(key="#id", value = "company_departments", allEntries = true)
     public void deleteDepartmentsOfCompany(Long id){
         return;
     }
-
 
     @Cacheable(key = "#id",value = "employee_cache")
     public Object getEmployeeById(Long id) throws CustomException, NotPresentException {
@@ -82,7 +86,7 @@ public class Caching {
             return  (Object)(completeResponse.convert(employeeEntity,companyDepartmentMappingEntity.getCompanyId(),
                     companyDepartmentMappingEntity.getDepartmentId()));
         }
-        throw new NotPresentException(NOT_PRESENT);
+        throw new NotPresentException("Employee"+NOT_PRESENT);
     }
 
     @CachePut(cacheNames = "employee_cache" , key = "#id")
@@ -97,13 +101,13 @@ public class Caching {
 
 
     @CacheEvict(value = "employee_cache",key="#id", allEntries = true)
-    public Response deleteEmployeebyId(Long id , Long userId) throws NotPresentException, CustomException {
+    public Response deleteEmployeeById(Long id , Long userId) throws NotPresentException {
         EmployeeEntity employeeEntity=employeeRepository.findById(id).orElse(null);
         if(employeeEntity!=null) {
            // EmployeeEntity employeeEntity=fetchedEmployeeEntity.get();
-            employeeEntity.setSalary(-1L);
-            employeeEntity.setDesignation(MyEnum.NONE);
-            employeeEntity.setManagerId(-1L);
+            employeeEntity.setSalary(null);
+            employeeEntity.setDesignation(MyEnum.none);
+            employeeEntity.setManagerId(null);
             employeeEntity.setUpdatedBy(userId);
             employeeRepository.save(employeeEntity);
 
@@ -121,10 +125,7 @@ public class Caching {
 
     @Cacheable(value="access_token",key = "#token")
     public String  tokenCaching(String token,String value){
-
         return token;
     }
-
-
 
 }
