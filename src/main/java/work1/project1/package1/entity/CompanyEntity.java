@@ -25,30 +25,20 @@ public class CompanyEntity  {
     @Column(name="ceo_name")
     private String ceoName;
 
-    @Getter @Setter
     @Column(name="is_active")
     private boolean isActive;
 
-    public boolean getIsActive()
-    {
-        return this.isActive;
-    }
-
-    @Getter @Setter
     @Column(name="created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Getter @Setter
     @Column(name="created_by")
     private Long createdBy;
 
-    @Getter @Setter
     @Column(name="updated_at")
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @Getter @Setter
     @Column(name="updated_by")
     private Long updatedBy;
     
@@ -59,4 +49,22 @@ public class CompanyEntity  {
         this.createdBy=createdBy;
         this.updatedBy=updatedBy;
     }
+    public CompanyEntity(long id, String companyName, String ceoName) {
+        this.id=id;
+        this.companyName=companyName;
+        this.ceoName=ceoName;
+    }
+
+    public CompanyEntity(Long companyId, String companyName, String ceoName, boolean b) {
+        this.id=companyId;
+        this.companyName=companyName;
+        this.ceoName=ceoName;
+        setActive(b);
+    }
+
+    public boolean getIsActive() {
+
+        return this.isActive;
+    }
+
 }

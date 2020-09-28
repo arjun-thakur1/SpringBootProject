@@ -1,29 +1,30 @@
 package work1.project1.package1.dto.response;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import work1.project1.package1.entity.EmployeeEntity;
 import work1.project1.package1.myenum.MyEnum;
 
 import static work1.project1.package1.constants.ApplicationConstants.SUCCESS;
-
+@Data
 public class EmployeeCompleteResponse {
 
-    @Getter @Setter private Long   id;
-    @Getter @Setter private String name;
-    @Getter @Setter private String phone;
+     private Long   id;
+     private String name;
+     private String phone;
 
-    @Getter @Setter private Long companyId;
-    @Getter @Setter private Long departmentId;
+     private Long companyId;
+     private Long departmentId;
 
-    @Getter @Setter private Long salary;
-    @Getter @Setter private Long managerId;
-    @Getter @Setter private MyEnum designation;
+     private Double salary;
+     private Long managerId;
+     private MyEnum designation;
 
-    @Getter @Setter private  String accessToken;
+  //  @Getter @Setter private  String accessToken;
 
-    @Getter @Setter private Long status;
-    @Getter @Setter private String message;
+     private Long status;
+     private String message;
 
 //multiple sources and one destination mapping..
     public EmployeeCompleteResponse convert(EmployeeEntity employeeEntity, Long companyId, Long departmentId) {

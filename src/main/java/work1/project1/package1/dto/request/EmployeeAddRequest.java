@@ -1,54 +1,56 @@
 package work1.project1.package1.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import work1.project1.package1.myenum.MyEnum;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Positive;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 
 import static work1.project1.package1.constants.ApplicationConstants.EMPLOYEE;
 import static work1.project1.package1.constants.ApplicationConstants._NONE;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class EmployeeAddRequest {
 
-    @NotNull
+
+    @NotEmpty(message = " employee name must not be empty!! ")
+    @NotNull(message = "employee name cant be null!!")
     private String name;
 
-    @NotNull
-    @Pattern(regexp = "^[0-9]{10}$")  //"^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$")
+    @NotNull(message = " phone no must must not be null!!  ")
+    @Pattern(regexp = "^[0-9]{10}$",message = " phone no must be of 10 digit!! ")  //"^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$")
     private String phone;
 
+    private Double salary;
 
-    @Builder.Default @Positive
-    private Long salary= Long.valueOf(1);
+    @Digits(integer =128 ,fraction = 0 , message = " company id must be Integer value!! ")
+    private Double  companyId;
 
-    @Builder.Default
-    private Long  companyId=Long.valueOf(-1);
+    @Digits(integer =128 ,fraction = 0 , message = " department id must be Integer value!! ")
+    private Double  departmentId;
 
-    @Builder.Default
-    private Long  departmentId=Long.valueOf(-1);
+    @Digits(integer =128 ,fraction = 0 , message = " manager id must be Integer value!! ")
+    private Double managerId;
 
-    @Builder.Default
-    private Long managerId= Long.valueOf(-1);
+    private MyEnum designation;
 
-    @Builder.Default
-    private MyEnum designation= MyEnum.none;
-
-    public  EmployeeAddRequest(String name,String phone,Long salary,Long companyId,Long departmentId){
+    public EmployeeAddRequest(){
+    }
+    public  EmployeeAddRequest(String name,String phone,Double salary,Double companyId,Double departmentId){
         this.name=name;
         this.phone=phone;
         this.salary=salary;
         this.companyId=companyId;
         this.departmentId=departmentId;
+    }
+    public  EmployeeAddRequest(String name,String phone,Double salary,Double managerId,MyEnum designation){
+        this.name=name;
+        this.phone=phone;
+        this.salary=salary;
+        this.managerId=managerId;
+        this.designation=designation;
     }
 
 }

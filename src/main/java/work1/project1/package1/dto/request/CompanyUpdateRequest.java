@@ -1,11 +1,9 @@
 package work1.project1.package1.dto.request;
 
+import com.sun.org.glassfish.gmbal.NameValue;
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 @Data
 @AllArgsConstructor
@@ -13,12 +11,12 @@ import javax.validation.constraints.Size;
 @Builder
 public class CompanyUpdateRequest {
 
-    @NotNull
-    @Getter @Setter private Long  id;
+    @NotNull(message= " please provide company id!! ")
+    @Positive(message = "id must be positive")
+    @Digits(integer =128 ,fraction = 0 , message = " id must be Integer value!! ")
+    private Double  id;
 
-    @NotEmpty
-    @Getter @Setter private String companyName;
-
-    @Getter @Setter private String ceoName;
+    String companyName;
+    String ceoName;
 
 }

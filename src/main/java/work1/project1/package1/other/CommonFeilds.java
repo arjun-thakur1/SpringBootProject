@@ -11,7 +11,7 @@ import javax.persistence.Column;
 import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommonFeilds {
+public class  CommonFeilds {
 
     @Getter @Setter
     @Column(name="created_at")

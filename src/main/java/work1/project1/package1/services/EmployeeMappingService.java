@@ -47,14 +47,15 @@ public class EmployeeMappingService {
         }
          EmployeeMappingEntity employeeMappingEntity=employeeMappingRepository.findByEmployeeIdAndMappingId(employeeId,
                 companyDepartmentMappingId);
-        if(employeeMappingEntity!=null) //want to add in same dept
-        {
+        if(employeeMappingEntity!=null){ //want to add in same dept
+
             employeeMappingEntity.setActive(true);
             employeeMappingEntity.setUpdatedBy(userId); //...........
             employeeMappingRepository.save(employeeMappingEntity);
             return ;
         }
-        EmployeeMappingEntity newEmployeeMappingEntity=new EmployeeMappingEntity(companyDepartmentMappingId,employeeId,-1,-1,true);
+        EmployeeMappingEntity newEmployeeMappingEntity=new EmployeeMappingEntity(companyDepartmentMappingId,employeeId
+                ,-1,-1,true);
         employeeMappingRepository.save(newEmployeeMappingEntity);
         return;
     }
