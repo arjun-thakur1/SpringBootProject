@@ -2,6 +2,7 @@ package work1.project1.package1.configuration;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -18,11 +19,13 @@ import java.util.Map;
 @Configuration
 public class KafkaConfiguration {
 
+    @Value("${kafka.bootstrap.servers}")
+    private String  bootStrapServerConfig;
     @Bean
     public ConsumerFactory< String, EmployeeKafka> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, "group_json");
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServerConfig);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, "${kafka.groupId}");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(),
@@ -35,5 +38,8 @@ public class KafkaConfiguration {
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
+
+
+
 
 }

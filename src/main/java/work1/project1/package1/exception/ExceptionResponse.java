@@ -1,30 +1,21 @@
 package work1.project1.package1.exception;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.validation.BindingResult;
 
 import java.util.Date;
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter
 public class ExceptionResponse {
 
-        private Date   timestamp;
+        private String timestamp= new Date().toString();
         private String message;
-
         private String details;
 
-    public ExceptionResponse(Date timestamp, String message, String details) {
-       this.timestamp = timestamp;
-        this.message = message;
-        this.details = details;
-    }
-
-    public ExceptionResponse(Date timestamp, String message) {
-        this.timestamp = timestamp;
-        this.message = message;
-    }
+        public ExceptionResponse(String  message,String details){
+                this.message=message;
+                this.details=details;
+        }
 }

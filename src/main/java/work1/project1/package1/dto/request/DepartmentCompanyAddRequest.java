@@ -2,19 +2,21 @@ package work1.project1.package1.dto.request;
 
 import lombok.*;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class DepartmentCompanyAddRequest implements Serializable {
 
-    @NotNull
-    @Getter @Setter private Long companyId;
+    @NotNull(message = " company ID must not be null!! ")
+    @Positive(message = "company id must be positive")
+    @Digits(integer =128 ,fraction = 0 , message = " company id must be Integer value!! ")
+    private Double companyId;
 
-    @NotNull
-    @Getter @Setter private Long  departmentId;
+    @NotNull(message = " department ID must not be null!! ")
+    @Positive(message = "department id must be positive")
+    @Digits(integer =128 ,fraction = 0 , message = " department id must be Integer value!! ")
+    private Double  departmentId;
 }

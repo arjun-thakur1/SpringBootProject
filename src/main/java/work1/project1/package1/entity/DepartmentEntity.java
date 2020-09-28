@@ -42,10 +42,9 @@ public class DepartmentEntity extends CommonFeilds {
     @Column(name="updated_by")
     private Long updatedBy;
 
-    public DepartmentEntity(String departmentName,long createdBy,long updatedBy) {
+    public DepartmentEntity(String departmentName,long createdBy) {
         this.departmentName=departmentName;
         this.createdBy=createdBy;
-        this.updatedBy=updatedBy;
     }
 
     public DepartmentEntity(Long departmentId, String departmentName) {

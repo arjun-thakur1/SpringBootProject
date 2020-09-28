@@ -23,7 +23,8 @@ public class RedisService {
     public String getKeyValue(String token) {
 
         Jedis jedis = jedisPool.getResource();
-        return jedis.get(token);
+        String keyValue=jedis.get(token);
+        return keyValue;
     }
 
     public void deleteTokenFromCache(String token){
@@ -32,7 +33,7 @@ public class RedisService {
         return ;
     }
 
-    public boolean isTokenAlreadyPresent(Long userId){
+ /*   public boolean isTokenAlreadyPresent(Long userId){
         Jedis jedis=jedisPool.getResource();
         String cursor = "0";
         ScanParams scanParams=new ScanParams();
@@ -46,7 +47,8 @@ public class RedisService {
         }while(!cursor.equals("0"));
         return false;
     }
-    public String deleteTokenOfEmployeeFromCache(Long employeeId){
+  */
+    public String deleteTokenOfEmployeeFromCache(Long employeeId){ //todo improve logic by using an alt cache
             Jedis jedis = jedisPool.getResource();
            // jedis = jedisPool.getResource();
             String cursor = "0";
@@ -56,7 +58,6 @@ public class RedisService {
                  ScanResult<String> scan = jedis.scan(cursor, sp);
                  List<String> result = scan.getResult();
                  if(result!=null && result.size()>0){
-                    //System.out.println(result+" ....  "+result.get(0));
                     deleteTokenFromCache(result.get(0));
                  }
                 cursor = scan.getCursor();
@@ -89,4 +90,12 @@ public class RedisService {
         }while(!cursor.equals("0"));
         return ;
     }
+
+  /*  public String findValueFromCacheById(String token) {
+        Jedis jedis = jedisPool.getResource();
+        jedis = jedisPool.getResource();
+        return jedis.get(token);
+    }
+
+   */
 }

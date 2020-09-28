@@ -1,14 +1,15 @@
 package work1.project1.package1.controller;
 
+import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work1.project1.package1.dto.request.CompanyUpdateRequest;
+import work1.project1.package1.dto.response.AllCompaniesResponse;
 import work1.project1.package1.dto.response.CompanyResponse;
 import work1.project1.package1.dto.response.EmployeeResponse;
 import work1.project1.package1.dto.response.Response;
-import work1.project1.package1.exception.CustomException;
+import work1.project1.package1.exception.*;
 import work1.project1.package1.dto.request.CompanyAddRequest;
-import work1.project1.package1.exception.DuplicateDataException;
-import work1.project1.package1.exception.NotPresentException;
-import work1.project1.package1.exception.UnAuthorizedUser;
 import work1.project1.package1.services.AuthorizationService;
 import work1.project1.package1.services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +22,15 @@ import work1.project1.package1.services.DepartmentService;
 import work1.project1.package1.services.EmployeeService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import static work1.project1.package1.constants.ApplicationConstants.ADMIN;
 
 @RestController
-@RequestMapping("/company")
+@RequestMapping(value = "/company")
 @Validated
 public class CompanyController {
 
@@ -43,17 +44,23 @@ public class CompanyController {
     private AuthorizationService authorizationService;
     Long updatedBy =1L;
 
-    @GetMapping(value = "/all" , produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<CompanyResponse>> getAllCompanies(@RequestHeader(value = "token")String token,
-                                                 @RequestParam(value = "page",defaultValue = "0")int page,
-                                                 @RequestParam(value = "size",defaultValue = "10")int size) throws CustomException, NotPresentException, UnAuthorizedUser {
+Logger logger=LoggerFactory.getLogger(this.getClass());
+
+    @GetMapping(value = "/all" )
+    public ResponseEntity<List<AllCompaniesResponse>> getAllCompanies(@RequestHeader(value = "token")String token,
+                                                                      @RequestParam(value = "page",defaultValue = "0")int page,
+                                                                      @RequestParam(value = "size",defaultValue = "10")int size,
+                                                                      @RequestParam(value = "b",required = false)boolean b) throws
+            CustomException, NotPresentException, UnAuthorizedUser, SuccessException {
+        System.out.println(b);
         if(!ADMIN.equals(token))
             throw new UnAuthorizedUser(" user is not Authorized!! ");
         return new ResponseEntity<> (companyService.getAll(page,size),HttpStatus.OK);
     }
 
-    @GetMapping(value="/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CompanyResponse> getCompanyDetailsById(@Valid @PathVariable("id") @NotNull  Long companyId,
+
+    @GetMapping(value="/{id}")
+    public ResponseEntity<CompanyResponse> getCompanyDetailsById(@NonNull @PathVariable("id") Long companyId,
                                                                  @RequestHeader(value = "token")String token)
             throws  NotPresentException, UnAuthorizedUser {
         if(!ADMIN.equals(token))
@@ -61,8 +68,8 @@ public class CompanyController {
         return new ResponseEntity<> (companyService.getCompanyById(companyId),HttpStatus.OK);
     }
 
-    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CompanyResponse> addCompany( @Valid @RequestBody CompanyAddRequest companyDto ,
+    @PostMapping( consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CompanyResponse> addCompany(  @RequestBody @Valid CompanyAddRequest companyDto ,
                                                        @RequestHeader(value = "token")String token)
             throws DuplicateDataException, UnAuthorizedUser {
         if(!ADMIN.equals(token))
@@ -71,21 +78,22 @@ public class CompanyController {
     }
 
     @DeleteMapping("/{companyId}")
-    public  ResponseEntity<Response> deleteCompanyById(@PathVariable("companyId") Long companyId,
+    public  ResponseEntity<Response> deleteCompanyById(@Valid @PathVariable("companyId") Long companyId,
                                                        @RequestHeader(value = "token")String token) throws CustomException, NotPresentException, UnAuthorizedUser {
         if(!ADMIN.equals(token))
             throw new UnAuthorizedUser(" user is not Authorized!! ");
         return new ResponseEntity<> (companyService.deleteCompanyDetails(companyId),HttpStatus.OK);
     }
-    @PutMapping("")
+    @PutMapping
     public ResponseEntity<CompanyResponse> updateCompanyDetail(@Valid @RequestBody CompanyUpdateRequest companyUpdateRequestDto ,
                                                                @RequestHeader(value = "token")String token)
-            throws DuplicateDataException, NotPresentException, UnAuthorizedUser {
+            throws DuplicateDataException, NotPresentException, UnAuthorizedUser, InsufficientDataException, CustomException {
         if(!ADMIN.equals(token))
-           updatedBy =authorizationService.isAccessOfCompanyDepartment(token,companyUpdateRequestDto.getId(),-1L);
+           updatedBy =authorizationService.isAccessOfCompanyDepartment(token,companyUpdateRequestDto.getId().longValue(),-1L);
         return new ResponseEntity<> (companyService.updateDetails(companyUpdateRequestDto.getId(),companyUpdateRequestDto.getCompanyName(),
                 companyUpdateRequestDto.getCeoName(), updatedBy),HttpStatus.OK);
     }
+
 
     @GetMapping (value="/complete-details/{companyId}")
     public ResponseEntity<HashMap<Long,List<EmployeeResponse>>> getCompanyCompleteDetails(@PathVariable("companyId") Long companyId,
@@ -93,7 +101,7 @@ public class CompanyController {
             throws CustomException, NotPresentException, UnAuthorizedUser {
         if(!ADMIN.equals(token))
             authorizationService.isAccessOfCompanyDepartment(token,companyId,-1L);
-        return  new ResponseEntity<> (companyService.getallEmployeesOfCompany(companyId),HttpStatus.OK);
+        return  new ResponseEntity<> (companyService.getCompanyCompleteDetails(companyId),HttpStatus.OK);
     }
 
 }

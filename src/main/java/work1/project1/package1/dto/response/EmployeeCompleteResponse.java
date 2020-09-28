@@ -17,7 +17,7 @@ public class EmployeeCompleteResponse {
      private Long companyId;
      private Long departmentId;
 
-     private Long salary;
+     private Double salary;
      private Long managerId;
      private MyEnum designation;
 

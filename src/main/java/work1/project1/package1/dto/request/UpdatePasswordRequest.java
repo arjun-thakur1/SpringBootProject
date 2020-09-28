@@ -1,7 +1,9 @@
 package work1.project1.package1.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.*;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
@@ -10,9 +12,11 @@ import javax.validation.constraints.Positive;
 @NoArgsConstructor
 public class UpdatePasswordRequest {
 
-    @NotNull @Positive(message = "id must be positive!!")
-    @Getter @Setter private Long id;
+    @NotNull(message = " id must not be null!! ")
+    @Positive(message = " id must be positive!! ")
+    private Long id;
 
-    @NotNull
-    @Getter @Setter private String newPassword;
+    @NotNull(message = " new-password must not be null!! ")
+    @NotEmpty(message = " new-password must not be empty!! ")
+    private String newPassword;
 }

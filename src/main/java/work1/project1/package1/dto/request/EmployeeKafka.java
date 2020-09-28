@@ -17,30 +17,23 @@ import static work1.project1.package1.constants.ApplicationConstants._NONE;
 @Builder
 public class EmployeeKafka implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 18288380103813L;
 
-    @Builder.Default
-    private Long companyId=-1L;
+    private Long companyId;
+    private Long departmentId;
 
-    @Builder.Default
-    private Long departmentId=-1L;
-
-    @NotNull
-    @Builder.Default
-    private Long salary=-1L;
+    private Double salary;
 
     private String name;
 
     @Pattern(regexp = "^[0-9]{10}$")
     private String phone;
 
-    @Builder.Default
-    private Long employeeId=-1L;
+    private Long employeeId;
 
-    @Builder.Default
-    private Long managerId= -1L;
+    private Long managerId;
 
-    @Builder.Default
-    private MyEnum designation=MyEnum.none;
+    private MyEnum designation;//=MyEnum.none;
+
 }
 

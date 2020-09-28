@@ -20,7 +20,6 @@ import java.util.List;
 import static work1.project1.package1.constants.ApplicationConstants.ADMIN;
 
 @RestController
-//@RequestMapping("/department")
 @Validated
 public class DepartmentController {
 
@@ -74,15 +73,17 @@ public class DepartmentController {
         authorizationService.isAccessOfCompanyDepartment(token,companyId,departmentId);
         return new ResponseEntity<> (departmentService.getDepartmentOfCompany(companyId,departmentId),HttpStatus.OK);
     }
+
+
     @PostMapping(value = "/add-dept-to-company", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Response> addDepartmentToCompany(@Valid @RequestBody DepartmentCompanyAddRequest requestDepartment,
+    public Response addDepartmentToCompany(@Valid @RequestBody DepartmentCompanyAddRequest requestDepartment,
                                                            @RequestHeader(value = "token")String token)
             throws CustomException, NotPresentException, UnAuthorizedUser { //only ceo so departmentId:0L
         if(!ADMIN.equals(token))
-        updatedBy =authorizationService.isAccessOfCompanyDepartment(token,requestDepartment.getCompanyId(),-1L);
-        return new ResponseEntity<> (departmentService.addDepartmentToCompany(requestDepartment, updatedBy),HttpStatus.OK);
+        updatedBy =authorizationService.isAccessOfCompanyDepartment(token,requestDepartment.getCompanyId().longValue(),-1L);
+        return departmentService.addDepartmentToCompany(requestDepartment, updatedBy);
     }
-    @GetMapping("/company/{companyId}")
+    @GetMapping("/company/{companyId}/department/all")
     public ResponseEntity<List<DepartmentResponse>> getAllDepartmentOfCompany(@PathVariable("companyId")Long companyId ,
                                                                               @RequestHeader(value = "token")String token)
             throws CustomException, NotPresentException, UnAuthorizedUser {
@@ -94,7 +95,7 @@ public class DepartmentController {
 
     @DeleteMapping("/company/{companyId}/department/{departmentId}")
     public ResponseEntity<Response> deleteDepartment(@PathVariable("companyId") Long companyId, @PathVariable("departmentId") Long departmentId,
-                                                     @RequestHeader(value = "token")String token) throws ResponseHttp, UnAuthorizedUser {
+                                                     @RequestHeader(value = "token")String token) throws ResponseHttp, UnAuthorizedUser, NotPresentException {
         if(!ADMIN.equals(token))
         updatedBy =authorizationService.isAccessOfCompanyDepartment(token,companyId,-1L);
         return new ResponseEntity<>(departmentService.deleteDepartmentDetails(companyId,departmentId),HttpStatus.OK);

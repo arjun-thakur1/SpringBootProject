@@ -4,11 +4,12 @@ import lombok.*;
 import org.springframework.http.HttpStatus;
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Getter @Setter
 public class SuccessException extends  Throwable{
 
-    private HttpStatus status;
-    private String message;
-
+   // private HttpStatus status;
+   // private String message;
+    public SuccessException(String message){
+        super(message);
+    }
 }

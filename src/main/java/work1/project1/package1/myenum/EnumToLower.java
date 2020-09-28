@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-public class ConvertEnumToLower {
+public class EnumToLower {
 
 
     public MyEnum convert(MyEnum val){

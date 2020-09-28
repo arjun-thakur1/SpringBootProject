@@ -9,7 +9,9 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class DepartmentAddRequest {
 
-    @NotNull @NotEmpty
-    @Getter @Setter private String departmentName;
+
+    @NotEmpty(message = " department name must not be empty!! ")
+    @NotNull(message = " department name must not be null!! ")
+    private String departmentName;
 
 }

@@ -1,4 +1,11 @@
 package work1.project1.package1.aop;
 
-public interface MethodExecutionTime {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface MethodExecutionTime {
 }

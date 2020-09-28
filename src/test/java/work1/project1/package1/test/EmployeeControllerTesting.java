@@ -74,9 +74,9 @@ public class EmployeeControllerTesting {
     @Test
     public void test_UpdateSalary_Success() throws Exception {
         UpdateSalaryRequest salaryRequest=new UpdateSalaryRequest();
-        salaryRequest.setEmployeeId(464L);
-        salaryRequest.setFlag(1L);
-        salaryRequest.setSalary_increment(1000L);
+        salaryRequest.setEmployeeId(464D);
+        salaryRequest.setType(1L);
+        salaryRequest.setSalary_change(1000D);
         String jsonRequest=om.writeValueAsString(salaryRequest);
         MvcResult result= mockMvc.perform(MockMvcRequestBuilders.put("/employee/update-salary").contentType(MediaType.APPLICATION_JSON)
                 .content(jsonRequest).header("token","admin"))
@@ -86,9 +86,9 @@ public class EmployeeControllerTesting {
     @Test
     public void test_UpdateSalary_Failed() throws Exception {
         UpdateSalaryRequest salaryRequest=new UpdateSalaryRequest();
-        salaryRequest.setEmployeeId(479L);
-        salaryRequest.setFlag(1L);
-        salaryRequest.setSalary_increment(1000L);
+        salaryRequest.setEmployeeId(479D);
+        salaryRequest.setType(1L);
+        salaryRequest.setSalary_change(1000D);
         String jsonRequest=om.writeValueAsString(salaryRequest);
         MvcResult result= mockMvc.perform(MockMvcRequestBuilders.put("/employee/update-salary").contentType(MediaType.APPLICATION_JSON)
                 .content(jsonRequest).header("token","admin"))
@@ -98,8 +98,8 @@ public class EmployeeControllerTesting {
     @Test
     public void test_UpdateEmployee_Success() throws Exception {
         EmployeeUpdateRequest updateRequest=new EmployeeUpdateRequest();
-        updateRequest.setId(476L);
-        updateRequest.setSalary(23000L);
+        updateRequest.setId(476D);
+        updateRequest.setSalary(23000D);
         updateRequest.setDesignation(MyEnum.employee);
         String jsonRequest=om.writeValueAsString(updateRequest);
         MvcResult result= mockMvc.perform(MockMvcRequestBuilders.put("/employee").contentType(MediaType.APPLICATION_JSON)
@@ -110,8 +110,8 @@ public class EmployeeControllerTesting {
     @Test
     public void test_UpdateEmployee_Failed() throws Exception {
         EmployeeUpdateRequest updateRequest=new EmployeeUpdateRequest();
-        updateRequest.setId(479L);
-        updateRequest.setSalary(23000L);
+        updateRequest.setId(479D);
+        updateRequest.setSalary(23000D);
         updateRequest.setDesignation(MyEnum.employee);
         String jsonRequest=om.writeValueAsString(updateRequest);
         MvcResult result= mockMvc.perform(MockMvcRequestBuilders.put("/employee").contentType(MediaType.APPLICATION_JSON)
@@ -139,8 +139,8 @@ public class EmployeeControllerTesting {
         EmployeeAddRequest employeeRequest=new EmployeeAddRequest();
         employeeRequest.setName("ARJUN");
         employeeRequest.setPhone("9993390859");
-        employeeRequest.setCompanyId(1L);
-        employeeRequest.setDepartmentId(1L);
+        employeeRequest.setCompanyId(1D);
+        employeeRequest.setDepartmentId(1D);
         employeeRequest.setDesignation(MyEnum.employee);
         String jsonRequest=om.writeValueAsString(employeeRequest);
         MvcResult result= mockMvc.perform(MockMvcRequestBuilders.post("/employee").contentType(MediaType.APPLICATION_JSON)

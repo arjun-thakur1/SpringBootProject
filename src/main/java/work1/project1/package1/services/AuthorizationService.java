@@ -11,26 +11,22 @@ import work1.project1.package1.other.TokenIds;
 import work1.project1.package1.other.CompanyDepartmentEmployeeIds;
 import work1.project1.package1.repository.CompanyDepartmentMappingRepository;
 import work1.project1.package1.repository.EmployeeRepository;
-import work1.project1.package1.repository.UserRepository;
-
-import java.util.Optional;
 
 @Service
 public class AuthorizationService {
 
-       @Autowired
-       UserRepository userRepository;
        @Autowired
        EmployeeRepository employeeRepository;
        @Autowired
        CompanyDepartmentMappingRepository cdMappingRepository;
        @Autowired
        EmployeeMappingService employeeMappingService;
+       @Autowired
+       RedisService redisService;
 
        TokenIds findIdsFromToken=new TokenIds();
 
-
-    //please save enum in database that r lowercase none,employee,ceo,hod ,, addEmployee(),updateEmployee()
+    //please save enum in database that r lowercase - none,employee,ceo,hod ,, addEmployee(),updateEmployee()
     public Long isAccessOfCompanyDepartment(String token , Long companyId , Long departmentId) throws UnAuthorizedUser {
         CompanyDepartmentEmployeeIds ids=findIdsFromToken.findCompanyDepartmentEmployeeIdFromToken(token);
         EmployeeEntity employeeEntity=employeeRepository.findById(ids.getEmployeeId()).orElse(null);
@@ -47,9 +43,9 @@ public class AuthorizationService {
         if(cdMappingEntity==null)
             throw new NotPresentException(" employee is not part of any company-department!! ");
         EmployeeEntity employeeEntity=employeeRepository.findById(ids.getEmployeeId()).orElse(null);
-        if((employeeEntity.getDesignation().equals(MyEnum.ceo) && ids.getCompanyId().equals(cdMappingEntity.getCompanyId())) || (employeeEntity
-                .getDesignation().equals(MyEnum.hod) && ids.getCompanyId().equals(cdMappingEntity.getCompanyId()) && ids.getDepartmentId()
-                .equals(cdMappingEntity.getDepartmentId())))
+        if((employeeEntity.getDesignation().equals(MyEnum.ceo) && ids.getCompanyId().equals(cdMappingEntity.getCompanyId()))
+                || (employeeEntity.getDesignation().equals(MyEnum.hod) && ids.getCompanyId().equals(cdMappingEntity.
+                getCompanyId()) && ids.getDepartmentId().equals(cdMappingEntity.getDepartmentId())))
             return ids.getEmployeeId();
         throw new UnAuthorizedUser(" user is not authorized!! ");
     }
@@ -70,13 +66,6 @@ public class AuthorizationService {
                 return ids.getEmployeeId();
         throw new UnAuthorizedUser(" user is not authorized!! ");
     }
-    private MyEnum getRole(Long employeeId) {
-        Optional<EmployeeEntity> fetchedEmployeeEntity=employeeRepository.findById(employeeId);
-        if(fetchedEmployeeEntity.isPresent()) {
-            EmployeeEntity employeeEntity= fetchedEmployeeEntity.get();
-            return employeeEntity.getDesignation();
-        }
-        return null;
-    }
+
 
 }

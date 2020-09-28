@@ -19,10 +19,10 @@ public class CompanyResponse implements Serializable {
     private String message= SUCCESS;
 
     public CompanyResponse(Long companyId, String companyName, String ceoName) {
-        this.id=id;
+
+        this.id=companyId;
         this.ceoName=ceoName;
         this.companyName=companyName;
     }
-
 
 }

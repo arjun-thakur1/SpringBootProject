@@ -27,7 +27,7 @@ import static work1.project1.package1.constants.ApplicationConstants.FAILED;
 
 @Component
 @CacheConfig(cacheNames={"company_cache"})
-public class Caching {
+public class CachingService {
      @Autowired
      CompanyRepository companyRepository;
      @Autowired
@@ -124,7 +124,7 @@ public class Caching {
 
 
     @Cacheable(value="access_token",key = "#token")
-    public String  tokenCaching(String token,String value){
+    public String  tokenCaching(String token,String val){
         return token;
     }
 

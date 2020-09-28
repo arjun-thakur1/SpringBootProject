@@ -38,7 +38,7 @@ public interface EmployeeMappingRepository extends JpaRepository<EmployeeMapping
             " UPDATE company_department_mapping_entity SET is_active =?3  " +
             " WHERE company_department_mapping_entity.company_id=?1 AND company_department_mapping_entity.department_id=?2 ; " +
             " COMMIT; ")
-    public void deleteDepartmentQuery(Long companyId  , Long departmentId , boolean faalse, String val,Long managerId,Long salary);
+    public void deleteDepartmentQuery(Long companyId  , Long departmentId , boolean faalse, String val,Long managerId,double salary);
 
   //  @Query(nativeQuery = true,value = "(SELECT id FROM company_department_mapping_entity as cd WHERE cd.company_id=?1 AND cd.department_id=?2)" )
    // public List<Long> deleteDepartmentQuery(Long companyId  ,Long departmentId , boolean faalse);

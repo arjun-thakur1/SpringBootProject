@@ -49,8 +49,8 @@ public class CompanyEntity  {
         this.createdBy=createdBy;
         this.updatedBy=updatedBy;
     }
-    public CompanyEntity(long l, String companyName, String ceoName) {
-        this.id=l;
+    public CompanyEntity(long id, String companyName, String ceoName) {
+        this.id=id;
         this.companyName=companyName;
         this.ceoName=ceoName;
     }

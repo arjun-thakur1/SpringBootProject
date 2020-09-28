@@ -31,7 +31,7 @@ public class EmployeeEntity  implements Serializable {
     private String phone;
 
     @Column(name="salary")
-    private Long salary;
+    private Double salary;
 
     @Column(name="manager_id")
     private Long  managerId;
@@ -39,6 +39,11 @@ public class EmployeeEntity  implements Serializable {
     @Column(name="designation")
     @Enumerated(EnumType.STRING)
     private MyEnum designation;
+
+
+    @Column(name="password")
+    private String password;
+
 
     @Column(name="created_at")
     @CreationTimestamp
@@ -54,7 +59,8 @@ public class EmployeeEntity  implements Serializable {
     @Column(name="updated_by")
     private Long updatedBy;
 
-    public EmployeeEntity(String name, String phone, Long salary, Long managerId, MyEnum designation, Long createdBy, Long updatedBy) {
+    public EmployeeEntity(String name, String phone, Double salary, Long managerId, MyEnum designation, Long createdBy,
+                          Long updatedBy,String password) {
      //super(createdBy,updatedBy);
      this.name=name;
      this.phone=phone;
@@ -63,9 +69,10 @@ public class EmployeeEntity  implements Serializable {
      this.designation=designation;
      this.createdBy=createdBy;
      this.updatedBy=updatedBy;
+     this.password=password;
     }
 
-    public EmployeeEntity(String name, String  phone,Long salary, long createdBy, long updatedBy) {
+    public EmployeeEntity(String name, String  phone,Double salary, long createdBy, long updatedBy) {
        // super(createdBy,updatedBy);
         this.name = name;
         this.phone = phone;
@@ -73,7 +80,7 @@ public class EmployeeEntity  implements Serializable {
         this.createdBy=createdBy;
         this.updatedBy=updatedBy;
     }
-    public EmployeeEntity(Long id,String name, String  phone,Long salary,Long managerId,MyEnum designation){
+    public EmployeeEntity(Long id,String name, String  phone,Double salary,Long managerId,MyEnum designation){
         this.id=id;
         this.name=name;
         this.phone=phone;

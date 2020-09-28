@@ -7,24 +7,9 @@ import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Response implements Serializable {
 
-    @Getter @Setter private long status;
-    @Getter @Setter private String message;
-
-
-
-
-
-
-    public Response(){
-
-
-
-
-
-
-
-    }
-
+     private long status;
+     private String message;
 }

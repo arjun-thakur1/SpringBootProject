@@ -1,29 +1,30 @@
 package work1.project1.package1.dto.response;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import work1.project1.package1.entity.EmployeeEntity;
 import work1.project1.package1.myenum.MyEnum;
 
 import java.io.Serializable;
 
 import static work1.project1.package1.constants.ApplicationConstants.SUCCESS;
-
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmployeeCompleteGetResponse implements Serializable {
     private static final long serialVersionUID = 1L;
-    @Getter @Setter private Long   id;
-    @Getter @Setter private String name;
-    @Getter @Setter private String phone;
+     private Long   id;
+     private String name;
+     private String phone;
 
-    @Getter @Setter private Long companyId;
-    @Getter @Setter private Long departmentId;
+    private Long companyId;
+    private Long departmentId;
 
-    @Getter @Setter private Long salary;
-    @Getter @Setter private Long managerId;
-    @Getter @Setter private MyEnum designation;
+     private Double salary;
+     private Long managerId;
+     private MyEnum designation;
 
-    @Getter @Setter private Long status;
-    @Getter @Setter private String message;
+     private Long status;
+     private String message;
 
 
 

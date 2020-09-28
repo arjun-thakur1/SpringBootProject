@@ -49,11 +49,14 @@ public class RedisConfiguration {
         JedisPool jedisPool = new JedisPool(getPoolConfig(),host,port );
         return jedisPool;
     }
-
     private GenericObjectPoolConfig getPoolConfig() {
-
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();;
+        jedisPoolConfig.setMaxTotal(1000);
+        jedisPoolConfig.setMaxWaitMillis(2);
+        return jedisPoolConfig;
+    }
+  /*  private GenericObjectPoolConfig getPoolConfig() {
         return new GenericObjectPoolConfig();
     }
-
-
+   */
 }

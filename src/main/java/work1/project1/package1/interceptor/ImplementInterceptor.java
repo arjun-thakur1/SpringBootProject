@@ -3,7 +3,6 @@ package work1.project1.package1.interceptor;
 import org.springframework.boot.web.servlet.DispatcherType;
 import work1.project1.package1.exception.CustomException;
 import work1.project1.package1.interfaces.LoggingService;
-import work1.project1.package1.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
@@ -16,8 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 public class ImplementInterceptor extends HandlerInterceptorAdapter {
     @Autowired
     LoggingService loggingService;
-    @Autowired
-    UserService usersService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws CustomException {
