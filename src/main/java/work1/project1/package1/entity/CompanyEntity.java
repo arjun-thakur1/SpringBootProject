@@ -48,6 +48,9 @@ public class CompanyEntity  {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @Column(insertable = false, updatable = false ,name = "previousEntity")
+    private String previousEntity;
+
     @Getter @Setter
     @Column(name="updated_by")
     private Long updatedBy;

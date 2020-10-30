@@ -46,7 +46,7 @@ public class CompanyController {
                                                  @RequestHeader(value="password",defaultValue = "0")String password,
                                                  @RequestParam(value = "page",defaultValue = "0")int page,
                                                  @RequestParam(value = "size",defaultValue = "10")int size) throws CustomException, NotPresentException, UnAuthorizedUser {
-        authorizationService.isAccessOfAll(userId,password);
+       // authorizationService.isAccessOfAll(userId,password);
         return new ResponseEntity<> (companyService.getAll(page,size),HttpStatus.OK);
     }
 
