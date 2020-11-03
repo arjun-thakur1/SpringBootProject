@@ -47,5 +47,5 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
 //
 //    @Query(value = "SELECT * FROM ticket_note note WHERE note.ticket_id = :ticketId ORDER BY id ASC limit 1", nativeQuery = true)
 //    TicketNoteEntity findOldestNote(@Param("ticketId") Long ticketId);
-
+//some testing commited code
 }
