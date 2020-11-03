@@ -19,38 +19,38 @@ import javax.validation.Valid;
 @Validated
 public class KafkaConsumer {
 
-    @Autowired
-    EmployeeService employeeService;
-    @Autowired
-    EmployeeRepository employeeRepository;
-    @Autowired
-    Caching caching;
-    @Autowired
-    ModelMapper mapper;
-
-    @KafkaListener(topics = "kafkaTopic2",  groupId="group_json",containerFactory = "kafkaListenerContainerFactory")
-    public void consumeJson(@Valid EmployeeKafka employeeKafka) throws CustomException, NotPresentException {
-       // System.out.println(object +"   .....   ");
-       // EmployeeKafka employeeKafka=mapper.map(object,EmployeeKafka.class);
-        Long employeeId = employeeKafka.getEmployeeId();
-        EmployeeEntity employeeEntity = employeeRepository.findById(employeeId).orElse(null);
-        if (employeeEntity != null) {
-            if(employeeKafka.getSalary()>=0)
-            employeeEntity.setSalary(employeeKafka.getSalary());
-            caching.updateEmployeeCache(employeeId,employeeEntity);
-            employeeRepository.save(employeeEntity);
-            return;
-        }
-        if(employeeKafka.getName()==null || employeeKafka.getPhone()==null || employeeKafka.getSalary()<=0 || employeeKafka.getCompanyId()==-1
-        || employeeKafka.getDepartmentId()==-1) {
-            System.out.println(" invalid inputs fetched from kafka topic!! ");
-            return;
-        }
-        EmployeeAddRequest employeeAddRequest= mapper.map(employeeKafka,EmployeeAddRequest.class);
-        employeeService.addEmployee(employeeAddRequest,0L);
-        return;
-    }
-
+//    @Autowired
+//    EmployeeService employeeService;
+//    @Autowired
+//    EmployeeRepository employeeRepository;
+//    @Autowired
+//    Caching caching;
+//    @Autowired
+//    ModelMapper mapper;
+//
+//    @KafkaListener(topics = "kafkaTopic2",  groupId="group_json",containerFactory = "kafkaListenerContainerFactory")
+//    public void consumeJson(@Valid EmployeeKafka employeeKafka) throws CustomException, NotPresentException {
+//       // System.out.println(object +"   .....   ");
+//       // EmployeeKafka employeeKafka=mapper.map(object,EmployeeKafka.class);
+//        Long employeeId = employeeKafka.getEmployeeId();
+//        EmployeeEntity employeeEntity = employeeRepository.findById(employeeId).orElse(null);
+//        if (employeeEntity != null) {
+//            if(employeeKafka.getSalary()>=0)
+//            employeeEntity.setSalary(employeeKafka.getSalary());
+//            caching.updateEmployeeCache(employeeId,employeeEntity);
+//            employeeRepository.save(employeeEntity);
+//            return;
+//        }
+//        if(employeeKafka.getName()==null || employeeKafka.getPhone()==null || employeeKafka.getSalary()<=0 || employeeKafka.getCompanyId()==-1
+//        || employeeKafka.getDepartmentId()==-1) {
+//            System.out.println(" invalid inputs fetched from kafka topic!! ");
+//            return;
+//        }
+//        EmployeeAddRequest employeeAddRequest= mapper.map(employeeKafka,EmployeeAddRequest.class);
+//        employeeService.addEmployee(employeeAddRequest,0L);
+//        return;
+//    }
+//
 
 
 }

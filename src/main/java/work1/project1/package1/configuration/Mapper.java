@@ -13,6 +13,7 @@ public class Mapper {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         System.out.println("some testing");
+        System.out.println("some testing2 in branch testing_branch2");
         return modelMapper;
     }
 }

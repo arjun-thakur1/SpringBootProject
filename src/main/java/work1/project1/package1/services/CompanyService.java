@@ -57,8 +57,13 @@ public class CompanyService {
 
     public List<CompanyResponse> getAll(int page,int size) throws NotPresentException {
         Pageable pageable= PageRequest.of(page,size);
-       Page<CompanyEntity> pageCompanyEntityList= companyRepository.findAllByIsActive(true,pageable);
-       List<CompanyEntity> companyEntityList=pageCompanyEntityList.getContent();
+       //Page<CompanyEntity> pageCompanyEntityList= companyRepository.findAllByIsActive(true,pageable);
+        List<Long> st= new ArrayList<>();
+        st.add(509L);
+        st.add(549L);
+        Page<CompanyEntity> pageCompanyEntityList= companyRepository.findBySomething(true,st,pageable);
+
+        List<CompanyEntity> companyEntityList=pageCompanyEntityList.getContent();
        if(!companyEntityList.isEmpty()) {
            List<CompanyResponse> companyResponseList=new ArrayList<>();
            companyEntityList.forEach((c)->{
