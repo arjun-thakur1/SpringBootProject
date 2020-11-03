@@ -34,6 +34,7 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
 
 
 
+
 //    @Query(value = "SELECT * FROM ticket WHERE status=:status AND assigned_group=:groupId AND resolved_at <= :resolvedAt", nativeQuery = true)
 //    Page<TicketEntity> findByGroupIdAndStatusAndCreatedBy(@Param("status") Integer status, @Param("groupId") Long groupId,
 //                                                          @Param("resolvedAt") LocalDateTime resolvedAt, Pageable pageable);
@@ -48,4 +49,7 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
 //    @Query(value = "SELECT * FROM ticket_note note WHERE note.ticket_id = :ticketId ORDER BY id ASC limit 1", nativeQuery = true)
 //    TicketNoteEntity findOldestNote(@Param("ticketId") Long ticketId);
 //some testing commited code
+
+//somthing in master forn testing purpose
+
 }
