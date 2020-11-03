@@ -27,5 +27,5 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
     @Query(nativeQuery = true,value = "select * from company_entity as c where c.id=?1 and c.is_active=?2 ")
     CompanyEntity findQuery(Long id, boolean b);
 
-
+//somthing in master forn testing purpose
 }
