@@ -28,4 +28,5 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
     CompanyEntity findQuery(Long id, boolean b);
 
 //somthing in master forn testing purpose
+    //some changes in remote master
 }
