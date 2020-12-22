@@ -15,4 +15,16 @@ public class Mapper {
         System.out.println("some testing");
         return modelMapper;
     }
+
+    @Bean
+    public ModelMapper modelMapper1() {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return modelMapper;
+    }
+
+
+    //some testing comment
+    
+
 }
