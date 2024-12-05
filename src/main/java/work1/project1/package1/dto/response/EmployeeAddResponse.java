@@ -22,13 +22,13 @@ public class EmployeeAddResponse {  //get response
 
     @Getter @Setter private String message=SUCCESS;
 
-    public EmployeeAddResponse convert(EmployeeEntity employeeEntity, String token) {
+    public EmployeeAddResponse convert(EmployeeEntity employeeEntity) {
         EmployeeAddResponse employeeAddResponse=new EmployeeAddResponse();
 
         employeeAddResponse.setId(employeeEntity.getId());
         employeeAddResponse.setName(employeeEntity.getName());
         employeeAddResponse.setPhone(employeeEntity.getPhone());
-        employeeAddResponse.setAccessToken(token);
+       // employeeAddResponse.setAccessToken(token);
 
        return employeeAddResponse;
     }

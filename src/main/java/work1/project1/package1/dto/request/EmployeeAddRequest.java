@@ -43,8 +43,6 @@ public class EmployeeAddRequest {
     @Builder.Default
     private MyEnum designation= MyEnum.none;
 
-    //@JsonIgnore
-    //private
     public  EmployeeAddRequest(String name,String phone,Long salary,Long companyId,Long departmentId){
         this.name=name;
         this.phone=phone;

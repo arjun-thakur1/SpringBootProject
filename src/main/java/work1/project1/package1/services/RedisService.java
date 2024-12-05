@@ -32,19 +32,33 @@ public class RedisService {
         return ;
     }
 
+    public boolean isTokenAlreadyPresent(Long userId){
+        Jedis jedis=jedisPool.getResource();
+        String cursor = "0";
+        ScanParams scanParams=new ScanParams();
+        scanParams.match("*"+"-"+(userId.toString()));
+        do{
+            ScanResult<String> scan =jedis.scan(cursor,scanParams);
+            List<String> result = scan.getResult();
+            if (result!=null && result.size()>0)
+                return true;
+            cursor=scan.getCursor();
+        }while(!cursor.equals("0"));
+        return false;
+    }
     public String deleteTokenOfEmployeeFromCache(Long employeeId){
             Jedis jedis = jedisPool.getResource();
-            jedis = jedisPool.getResource();
+           // jedis = jedisPool.getResource();
             String cursor = "0";
             ScanParams sp = new ScanParams();
             sp.match("*"+"-"+(employeeId.toString()));
              do{
-                ScanResult<String> scan = jedis.scan(cursor, sp);
-               List<String> result = scan.getResult();
-               if(result!=null && result.size()>0){
-                    System.out.println(result+" ....  "+result.get(0));
+                 ScanResult<String> scan = jedis.scan(cursor, sp);
+                 List<String> result = scan.getResult();
+                 if(result!=null && result.size()>0){
+                    //System.out.println(result+" ....  "+result.get(0));
                     deleteTokenFromCache(result.get(0));
-                }
+                 }
                 cursor = scan.getCursor();
             }while(!cursor.equals("0"));
             return SUCCESS;

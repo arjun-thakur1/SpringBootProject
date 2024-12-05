@@ -1,5 +1,6 @@
 package work1.project1.package1.repository;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import work1.project1.package1.entity.EmployeeMappingEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

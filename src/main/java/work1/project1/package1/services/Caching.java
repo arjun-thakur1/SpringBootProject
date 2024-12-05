@@ -91,13 +91,14 @@ public class Caching {
 
 
     @CacheEvict(value = "employee_cache",key="#id", allEntries = true)
-    public Response deleteEmployeebyId(Long id) throws NotPresentException, CustomException {
+    public Response deleteEmployeebyId(Long id , Long userId) throws NotPresentException, CustomException {
         Optional<EmployeeEntity> fetchedEmployeeEntity=employeeRepository.findById(id);
         if(fetchedEmployeeEntity.isPresent()) {
             EmployeeEntity employeeEntity=fetchedEmployeeEntity.get();
             employeeEntity.setSalary(-1L);
             employeeEntity.setDesignation(MyEnum.NONE);
             employeeEntity.setManagerId(-1L);
+            employeeEntity.setUpdatedBy(userId);
             employeeRepository.save(employeeEntity);
 
             EmployeeMappingEntity employeeMapping= employeeMappingRepository.findByEmployeeIdAndIsActive(id,true);

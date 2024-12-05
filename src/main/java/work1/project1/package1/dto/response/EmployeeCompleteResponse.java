@@ -26,7 +26,7 @@ public class EmployeeCompleteResponse {
     @Getter @Setter private String message;
 
 //multiple sources and one destination mapping..
-    public EmployeeCompleteResponse convert(EmployeeEntity employeeEntity, Long companyId, Long departmentId,String token) {
+    public EmployeeCompleteResponse convert(EmployeeEntity employeeEntity, Long companyId, Long departmentId) {
         EmployeeCompleteResponse completeResponseDto=new EmployeeCompleteResponse();
 
         completeResponseDto.setCompanyId(companyId);
@@ -39,7 +39,7 @@ public class EmployeeCompleteResponse {
         completeResponseDto.setManagerId(employeeEntity.getManagerId());
         completeResponseDto.setDesignation(employeeEntity.getDesignation());
         completeResponseDto.setStatus(Long.valueOf(200));
-        completeResponseDto.setAccessToken(token);
+       // completeResponseDto.setAccessToken(token);
 
         completeResponseDto.setMessage(SUCCESS);
         return completeResponseDto;
